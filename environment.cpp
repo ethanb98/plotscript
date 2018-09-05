@@ -104,6 +104,60 @@ Expression div(const std::vector<Expression> & args){
   return Expression(result);
 };
 
+Expression sqrt(const std::vector<Expression> & args){
+
+  double result = 0;  
+
+  if(nargs_equal(args,1)){
+    if( (args[0].isHeadNumber()) && (args[0].isHeadNumber() > 0) ){
+      result = std::sqrt(args[0].head().asNumber());
+    }
+    else{      
+      throw SemanticError("Error in call to square root: invalid argument (negative number).");
+    }
+  }
+  else{
+    throw SemanticError("Error in call to square root: invalid number of arguments.");
+  }
+  return Expression(result);
+};
+
+Expression pow(const std::vector<Expression> & args){
+
+  double result = 0;  
+
+  if(nargs_equal(args,2)){
+    if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) ){
+      result = std::pow(args[0].head().asNumber(), args[1].head().asNumber());
+    }
+    else{      
+      throw SemanticError("Error in call to division: invalid argument.");
+    }
+  }
+  else{
+    throw SemanticError("Error in call to division: invalid number of arguments.");
+  }
+  return Expression(result);
+};
+
+/*Expression ln(const std::vector<Expression> & args){
+
+  double result = 0;  
+
+  if(nargs_equal(args,2)){
+    if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) ){
+      result = args[0].head().asNumber() / args[1].head().asNumber();
+    }
+    else{      
+      throw SemanticError("Error in call to division: invalid argument.");
+    }
+  }
+  else{
+    throw SemanticError("Error in call to division: invalid number of arguments.");
+  }
+  return Expression(result);
+};*/
+
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
 
@@ -196,4 +250,26 @@ void Environment::reset(){
 
   // Procedure: div;
   envmap.emplace("/", EnvResult(ProcedureType, div)); 
+
+  // Built-In value of Euler's number
+  envmap.emplace("e", EnvResult(ExpressionType, Expression(EXP)));
+
+  // Procedure: sqrt;
+  envmap.emplace("sqrt", EnvResult(ProcedureType, sqrt));
+
+  // Procedure: pow;
+  envmap.emplace("pow", EnvResult(ProcedureType, pow));
+
+  // Procedure: ln;
+  //envmap.emplace("ln", EnvResult(ProcedureType, ln));
+
+  // Procedure: sin;
+  //envmap.emplace("sin", EnvResult(ProcedureType, sin));
+
+  // Procedure: cos;
+  //envmap.emplace("cos", EnvResult(Procedure, cos));
+
+  // Procedure: tan;
+  //envmap.emplace("tan", EnvResult(ProcedureType, tan));
+
 }
