@@ -109,7 +109,7 @@ Expression sqrt(const std::vector<Expression> & args){
   double result = 0;  
 
   if(nargs_equal(args,1)){
-    if( (args[0].isHeadNumber()) && (args[0].isHeadNumber() > 0) ){
+    if( (args[0].isHeadNumber()) && (args[0].head().asNumber() >= 0) ){
       result = std::sqrt(args[0].head().asNumber());
     }
     else{      
@@ -131,32 +131,86 @@ Expression pow(const std::vector<Expression> & args){
       result = std::pow(args[0].head().asNumber(), args[1].head().asNumber());
     }
     else{      
-      throw SemanticError("Error in call to division: invalid argument.");
+      throw SemanticError("Error in call to power: invalid argument.");
     }
   }
   else{
-    throw SemanticError("Error in call to division: invalid number of arguments.");
+    throw SemanticError("Error in call to power: invalid number of arguments.");
   }
   return Expression(result);
 };
 
-/*Expression ln(const std::vector<Expression> & args){
+Expression ln(const std::vector<Expression> & args){
 
   double result = 0;  
 
-  if(nargs_equal(args,2)){
-    if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) ){
-      result = args[0].head().asNumber() / args[1].head().asNumber();
+  if(nargs_equal(args,1)){
+    if( (args[0].isHeadNumber()) && (args[0].head().asNumber() > 0) ){
+		result = std::log(args[0].head().asNumber());
     }
     else{      
-      throw SemanticError("Error in call to division: invalid argument.");
+      throw SemanticError("Error in call to natural log: invalid argument (0 or negative number).");
     }
   }
   else{
-    throw SemanticError("Error in call to division: invalid number of arguments.");
+    throw SemanticError("Error in call to natural log: invalid number of arguments.");
   }
   return Expression(result);
-};*/
+};
+
+Expression sin(const std::vector<Expression> & args) {
+
+	double result = 0;
+
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadNumber()) {
+			result = std::sin(args[0].head().asNumber());
+		}
+		else {
+			throw SemanticError("Error in call to sine: invalid argument.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to sine: invalid number of arguments.");
+	}
+	return Expression(result);
+};
+
+Expression cos(const std::vector<Expression> & args) {
+
+	double result = 0;
+
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadNumber()) {
+			result = std::cos(args[0].head().asNumber());
+		}
+		else {
+			throw SemanticError("Error in call to cosine: invalid argument.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to cosine: invalid number of arguments.");
+	}
+	return Expression(result);
+};
+
+Expression tan(const std::vector<Expression> & args) {
+
+	double result = 0;
+
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadNumber()) {
+			result = std::tan(args[0].head().asNumber());
+		}
+		else {
+			throw SemanticError("Error in call to tangent: invalid argument.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to tangent: invalid number of arguments.");
+	}
+	return Expression(result);
+};
 
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
@@ -258,18 +312,18 @@ void Environment::reset(){
   envmap.emplace("sqrt", EnvResult(ProcedureType, sqrt));
 
   // Procedure: pow;
-  envmap.emplace("pow", EnvResult(ProcedureType, pow));
+  envmap.emplace("^", EnvResult(ProcedureType, pow));
 
   // Procedure: ln;
-  //envmap.emplace("ln", EnvResult(ProcedureType, ln));
+  envmap.emplace("ln", EnvResult(ProcedureType, ln));
 
   // Procedure: sin;
-  //envmap.emplace("sin", EnvResult(ProcedureType, sin));
+  envmap.emplace("sin", EnvResult(ProcedureType, sin));
 
   // Procedure: cos;
-  //envmap.emplace("cos", EnvResult(Procedure, cos));
+  envmap.emplace("cos", EnvResult(ProcedureType, cos));
 
   // Procedure: tan;
-  //envmap.emplace("tan", EnvResult(ProcedureType, tan));
+  envmap.emplace("tan", EnvResult(ProcedureType, tan));
 
 }
