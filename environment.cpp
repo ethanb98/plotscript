@@ -52,16 +52,22 @@ Expression add(const std::vector<Expression> & args){
 Expression mul(const std::vector<Expression> & args){
  
   // check all aruments are numbers, while multiplying
-  double result = 1;
+  std::complex<double> result = 1.0;
   for( auto & a :args){
     if(a.isHeadNumber()){
       result *= a.head().asNumber();      
     }
+	if (a.isHeadComplex()) {
+		result *= a.head().asComplex();
+	}
     else{
       throw SemanticError("Error in call to mul, argument not a number");
     }
   }
 
+  if (result.imag() == 0) {
+	  return Expression(result.real());
+  }
   return Expression(result);
 };
 
