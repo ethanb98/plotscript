@@ -51,7 +51,12 @@ bool Expression::isHeadNumber() const noexcept{
 
 bool Expression::isHeadSymbol() const noexcept{
   return m_head.isSymbol();
-}  
+}
+
+bool Expression::isHeadComplex() const noexcept
+{
+	return m_head.isComplex();
+}
 
 
 void Expression::append(const Atom & a){
@@ -108,6 +113,9 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
     else if(head.isNumber()){
       return Expression(head);
     }
+	else if (head.isComplex()) {
+	  return Expression(head);
+	}
     else{
       throw SemanticError("Error during evaluation: Invalid type in terminal expression");
     }
