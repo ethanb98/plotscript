@@ -129,12 +129,25 @@ Expression subneg(const std::vector<Expression> & args){
 
 Expression div(const std::vector<Expression> & args){
 
-  double result = 0;  
+  std::complex<double> result = 0; 
+  bool complexArgs = false;
 
   if(nargs_equal(args,2)){
     if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) ){
       result = args[0].head().asNumber() / args[1].head().asNumber();
     }
+	else if( (args[0].isHeadNumber()) && (args[1].isHeadComplex()) ){
+		result = args[0].head().asNumber() / args[1].head().asComplex();
+		complexArgs = true;
+	}
+	else if ( (args[0].isHeadComplex()) && (args[1].isHeadNumber()) ) {
+		result = args[0].head().asComplex() / args[1].head().asNumber();
+		complexArgs = true;
+	}
+	else if ((args[0].isHeadComplex()) && (args[1].isHeadComplex())) {
+		result = args[0].head().asComplex() / args[1].head().asComplex();
+		complexArgs = true;
+	}
     else{      
       throw SemanticError("Error in call to division: invalid argument.");
     }
@@ -142,7 +155,13 @@ Expression div(const std::vector<Expression> & args){
   else{
     throw SemanticError("Error in call to division: invalid number of arguments.");
   }
-  return Expression(result);
+
+  if (complexArgs == false) {
+	  return Expression(result.real());
+  }
+  else {
+	  return Expression(result);
+  }
 };
 
 Expression sqrt(const std::vector<Expression> & args){
