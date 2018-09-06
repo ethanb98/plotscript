@@ -4,7 +4,6 @@
 #include <cctype>
 #include <cmath>
 #include <limits>
-#include <complex>
 
 Atom::Atom(): m_type(NoneKind) {}
 
@@ -37,12 +36,20 @@ Atom::Atom(const std::string & value): Atom() {
   setSymbol(value);
 }
 
+Atom::Atom(std::complex<double> value)
+{
+	setComplex(value);
+}
+
 Atom::Atom(const Atom & x): Atom(){
   if(x.isNumber()){
     setNumber(x.numberValue);
   }
   else if(x.isSymbol()){
     setSymbol(x.stringValue);
+  }
+  else if (x.isComplex()) {
+	  setComplex(x.complexValue);
   }
 }
 
@@ -58,6 +65,9 @@ Atom & Atom::operator=(const Atom & x){
     else if(x.m_type == SymbolKind){
       setSymbol(x.stringValue);
     }
+	else if (x.m_type == ComplexKind) {
+		setComplex(x.complexValue);
+	}
   }
   return *this;
 }
@@ -107,7 +117,7 @@ void Atom::setSymbol(const std::string & value){
   new (&stringValue) std::string(value);
 }
 
-void Atom::setComplex(double value)
+void Atom::setComplex(std::complex<double> value)
 {
 	m_type = ComplexKind;
 	complexValue = value;
@@ -130,9 +140,9 @@ std::string Atom::asSymbol() const noexcept{
   return result;
 }
 
-double Atom::asComplex() const noexcept
+std::complex<double> Atom::asComplex() const noexcept
 {
-	return (m_type == ComplexKind) ? complexValue : 0.0;
+	return (m_type == ComplexKind) ? complexValue : (0,0);
 }
 
 bool Atom::operator==(const Atom & right) const noexcept{
