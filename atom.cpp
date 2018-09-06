@@ -79,7 +79,12 @@ bool Atom::isNumber() const noexcept{
 
 bool Atom::isSymbol() const noexcept{
   return m_type == SymbolKind;
-}  
+}
+
+bool Atom::isComplex() const noexcept
+{
+	return m_type == ComplexKind;
+}
 
 
 void Atom::setNumber(double value){
@@ -101,6 +106,12 @@ void Atom::setSymbol(const std::string & value){
   new (&stringValue) std::string(value);
 }
 
+void Atom::setComplex(double value)
+{
+	m_type = ComplexKind;
+	complexValue = value;
+}
+
 double Atom::asNumber() const noexcept{
 
   return (m_type == NumberKind) ? numberValue : 0.0;  
@@ -116,6 +127,11 @@ std::string Atom::asSymbol() const noexcept{
   }
 
   return result;
+}
+
+double Atom::asComplex() const noexcept
+{
+	return (m_type == ComplexKind) ? complexValue : 0.0;
 }
 
 bool Atom::operator==(const Atom & right) const noexcept{
@@ -143,6 +159,12 @@ bool Atom::operator==(const Atom & right) const noexcept{
       return stringValue == right.stringValue;
     }
     break;
+  case ComplexKind:
+  {
+	  if (right.m_type != ComplexKind) return false;
+	  return complexValue == right.complexValue;
+  }
+  break;
   default:
     return false;
   }
@@ -163,6 +185,9 @@ std::ostream & operator<<(std::ostream & out, const Atom & a){
   }
   if(a.isSymbol()){
     out << a.asSymbol();
+  }
+  if (a.isComplex()) {
+	out << a.asComplex();
   }
   return out;
 }
