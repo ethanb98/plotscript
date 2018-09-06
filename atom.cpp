@@ -4,6 +4,7 @@
 #include <cctype>
 #include <cmath>
 #include <limits>
+#include <complex>
 
 Atom::Atom(): m_type(NoneKind) {}
 
