@@ -200,6 +200,17 @@ Expression abs(const std::vector<Expression> & args) {
 	}
 }
 
+Expression arg(const std::vector<Expression> & args) {
+	std::complex<double> result = 0;
+
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadComplex()) {
+			result = std::arg(args[0].head().asComplex());
+			return Expression(result.real());
+		}
+	}
+}
+
 Expression sqrt(const std::vector<Expression> & args){
 
   double result = 0;  
@@ -438,4 +449,7 @@ void Environment::reset(){
 
   // Procedure: mag;
   envmap.emplace("mag", EnvResult(ProcedureType, abs));
+
+  // Procedure: arg;
+  envmap.emplace("arg", EnvResult(ProcedureType, arg));
 }
