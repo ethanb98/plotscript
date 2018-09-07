@@ -164,6 +164,31 @@ Expression div(const std::vector<Expression> & args){
   }
 };
 
+Expression real(const std::vector<Expression> & args) {
+	std::complex<double> result = 0;
+
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadComplex()) {
+			result = args[0].head().asComplex();
+			return Expression(result.real());
+		}
+	}
+	else {
+		throw SemanticError("Error in call to complex real: invalid argument/s");
+	}
+}
+
+Expression imag(const std::vector<Expression> & args) {
+	std::complex<double> result = 0;
+
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadComplex()) {
+			result = args[0].head().asComplex();
+			return Expression(result.imag());
+		}
+	}
+}
+
 Expression sqrt(const std::vector<Expression> & args){
 
   double result = 0;  
@@ -393,4 +418,10 @@ void Environment::reset(){
 
   // Built-In value of negative Imaginary -I
   envmap.emplace("-I", EnvResult(ExpressionType, Expression(negI)));
+
+  // Procedure: real;
+  envmap.emplace("real", EnvResult(ProcedureType, real));
+
+  // Procedure: imag;
+  envmap.emplace("imag", EnvResult(ProcedureType, imag));
 }
