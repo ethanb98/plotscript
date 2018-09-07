@@ -206,19 +206,40 @@ Expression arg(const std::vector<Expression> & args) {
 	if (nargs_equal(args, 1)) {
 		if (args[0].isHeadComplex()) {
 			result = std::arg(args[0].head().asComplex());
-			return Expression(result.real());
+			return Expression(result);
+		}
+	}
+}
+
+Expression conj(const std::vector<Expression> & args) {
+	std::complex<double> result = 0;
+
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadComplex()) {
+			result = std::conj(args[0].head().asComplex());
+			return Expression(result);
 		}
 	}
 }
 
 Expression sqrt(const std::vector<Expression> & args){
 
-  double result = 0;  
+  std::complex<double> result = 0;
+  bool complexArgs = false;
 
   if(nargs_equal(args,1)){
     if( (args[0].isHeadNumber()) && (args[0].head().asNumber() >= 0) ){
       result = std::sqrt(args[0].head().asNumber());
     }
+	else if ((args[0].isHeadNumber()) && (args[0].head().asNumber() < 0)) {
+		std::complex<double> makeComplex(args[0].head().asNumber(), 0.0);
+		result = std::sqrt(makeComplex);
+		complexArgs = true;
+	}
+	else if ((args[0].isHeadComplex())) {
+		result = std::sqrt(args[0].head().asComplex());
+		complexArgs = true;
+	}
     else{      
       throw SemanticError("Error in call to square root: invalid argument (negative number).");
     }
@@ -226,7 +247,13 @@ Expression sqrt(const std::vector<Expression> & args){
   else{
     throw SemanticError("Error in call to square root: invalid number of arguments.");
   }
-  return Expression(result);
+
+  if (complexArgs == false) {
+	  return Expression(result.real());
+  }
+  else {
+	  return Expression(result);
+  }
 };
 
 Expression pow(const std::vector<Expression> & args){
@@ -452,4 +479,7 @@ void Environment::reset(){
 
   // Procedure: arg;
   envmap.emplace("arg", EnvResult(ProcedureType, arg));
+
+  // Procedure: conj;
+  envmap.emplace("conj", EnvResult(ProcedureType, conj));
 }
