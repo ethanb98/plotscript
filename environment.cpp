@@ -189,6 +189,17 @@ Expression imag(const std::vector<Expression> & args) {
 	}
 }
 
+Expression abs(const std::vector<Expression> & args) {
+	std::complex<double> result = 0;
+
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadComplex()) {
+			result = std::abs(args[0].head().asComplex());
+			return Expression(result.real());
+		}
+	}
+}
+
 Expression sqrt(const std::vector<Expression> & args){
 
   double result = 0;  
@@ -424,4 +435,7 @@ void Environment::reset(){
 
   // Procedure: imag;
   envmap.emplace("imag", EnvResult(ProcedureType, imag));
+
+  // Procedure: mag;
+  envmap.emplace("mag", EnvResult(ProcedureType, abs));
 }
