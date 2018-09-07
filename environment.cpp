@@ -172,6 +172,9 @@ Expression real(const std::vector<Expression> & args) {
 			result = args[0].head().asComplex();
 			return Expression(result.real());
 		}
+		else {
+			throw SemanticError("Error in call to complex real: invalid argument.");
+		}
 	}
 	else {
 		throw SemanticError("Error in call to complex real: invalid argument/s");
@@ -186,6 +189,12 @@ Expression imag(const std::vector<Expression> & args) {
 			result = args[0].head().asComplex();
 			return Expression(result.imag());
 		}
+		else {
+			throw SemanticError("Error in call to complex imaginary: invalid argument.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to complex imaginary: invalid argument.");
 	}
 }
 
@@ -197,6 +206,12 @@ Expression abs(const std::vector<Expression> & args) {
 			result = std::abs(args[0].head().asComplex());
 			return Expression(result.real());
 		}
+		else {
+			throw SemanticError("Error in call to complex absolute: invalid argument.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to complex absolute: invalid argument.");
 	}
 }
 
@@ -208,6 +223,12 @@ Expression arg(const std::vector<Expression> & args) {
 			result = std::arg(args[0].head().asComplex());
 			return Expression(result);
 		}
+		else {
+			throw SemanticError("Error in call to complex angle/phase: invalid argument.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to complex angle/phase: invalid argument.");
 	}
 }
 
@@ -219,6 +240,12 @@ Expression conj(const std::vector<Expression> & args) {
 			result = std::conj(args[0].head().asComplex());
 			return Expression(result);
 		}
+		else {
+			throw SemanticError("Error in call to complex conjugate: invalid argument.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to complex conjugate: invalid argument.");
 	}
 }
 
