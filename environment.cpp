@@ -392,10 +392,16 @@ Expression tan(const std::vector<Expression> & args) {
 	return Expression(result);
 };
 
+Expression list(const std::vector<Expression> & args) {	
+	std::vector<Expression> result;
+	result = args;
+	return Expression(result);
+}
+
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
 const std::complex<double> I (0.0,1.0);
-const std::complex<double> negI(0.0, -1.0);
+const std::complex<double> negI (0.0, -1.0);
 
 Environment::Environment(){
 
@@ -528,4 +534,7 @@ void Environment::reset(){
 
   // Procedure: conj;
   envmap.emplace("conj", EnvResult(ProcedureType, conj));
+
+  // Procedure: List;
+  envmap.emplace("list", EnvResult(ProcedureType, list));
 }

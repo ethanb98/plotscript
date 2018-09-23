@@ -35,6 +35,9 @@ public:
   /// deep-copy construct an expression (recursive)
   Expression(const Expression & a);
 
+  /// deep-copy construct of vector expression
+  Expression(const std::vector<Expression> & a);
+
   /// deep-copy assign an expression  (recursive)
   Expression & operator=(const Expression & a);
 
@@ -62,7 +65,7 @@ public:
   /// convienience member to determine if head atom is a symbol
   bool isHeadSymbol() const noexcept;
 
-  ///convenience member to determine if head atom is a complex
+  /// convenience member to determine if head atom is a complex
   bool isHeadComplex() const noexcept;
 
   /// Evaluate expression using a post-order traversal (recursive)

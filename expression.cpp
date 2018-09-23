@@ -22,6 +22,11 @@ Expression::Expression(const Expression & a){
   }
 }
 
+// constructor for list
+Expression::Expression(const std::vector<Expression> & a) {
+	m_tail = a;
+}
+
 Expression & Expression::operator=(const Expression & a){
 
   // prevent self-assignment
@@ -53,16 +58,17 @@ bool Expression::isHeadSymbol() const noexcept{
   return m_head.isSymbol();
 }
 
-bool Expression::isHeadComplex() const noexcept
-{
+bool Expression::isHeadComplex() const noexcept{
 	return m_head.isComplex();
 }
 
+/*bool Expression::isHeadList() const noexcept {
+	return m_head.isList();
+}*/
 
 void Expression::append(const Atom & a){
   m_tail.emplace_back(a);
 }
-
 
 Expression * Expression::tail(){
   Expression * ptr = nullptr;
@@ -103,12 +109,15 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
 
 Expression Expression::handle_lookup(const Atom & head, const Environment & env){
     if(head.isSymbol()){ // if symbol is in env return value
-      if(env.is_exp(head)){
-	return env.get_exp(head);
-      }
-      else{
-	throw SemanticError("Error during evaluation: unknown symbol");
-      }
+		if(env.is_exp(head)){
+			return env.get_exp(head);
+		}
+		else if (head.asSymbol() == "list") {
+			return Expression(m_tail);
+		}
+		else{
+			throw SemanticError("Error during evaluation: unknown symbol");
+		}
     }
     else if(head.isNumber()){
       return Expression(head);
@@ -188,7 +197,7 @@ Expression Expression::eval(Environment & env){
   else if(m_head.isSymbol() && m_head.asSymbol() == "define"){
     return handle_define(env);
   }
-  // else attempt to treat as procedure
+   // else attempt to treat as procedure
   else{ 
     std::vector<Expression> results;
     for(Expression::IteratorType it = m_tail.begin(); it != m_tail.end(); ++it){
@@ -207,7 +216,10 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
   out << exp.head();
 
   for(auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e){
-    out << *e;
+	out << *e;
+	if ((e+1) != exp.tailConstEnd()) {
+		out << " ";
+	}
   }
 
   if (!exp.isHeadComplex()) {
