@@ -125,6 +125,10 @@ void Atom::setComplex(std::complex<double> value){
 	complexValue = value;
 }
 
+/*void Atom::setList(){
+	m_type = ListKind;
+}*/
+
 double Atom::asNumber() const noexcept{
 
   return (m_type == NumberKind) ? numberValue : 0.0;  

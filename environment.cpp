@@ -398,6 +398,33 @@ Expression list(const std::vector<Expression> & args) {
 	return Expression(result);
 }
 
+Expression first(const std::vector<Expression> & args) {
+	std::vector<Expression> result;
+	result = args;
+	if (nargs_equal(args, 1)) {
+		if (result[0].isHeadNumber()) {
+			throw SemanticError("Error: argument to first is not a list.");
+		}
+		else if (result[0].isHeadSymbol()) {
+			throw SemanticError("Error: argument to first is not a list.");
+		}
+		else if (result[0].isHeadComplex()) {
+			throw SemanticError("Error: argument to first is not a list.");
+		}
+		else {
+			if (result[0] != Expression()) {
+				return Expression(*result[0].tailConstBegin());
+			}
+			else {
+				throw SemanticError("Error: argument to first is an empty list");
+			}
+		}
+	}
+	else {
+		throw SemanticError("Error: more than one argument in call to first.");
+	}
+}
+
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
 const std::complex<double> I (0.0,1.0);
@@ -537,4 +564,7 @@ void Environment::reset(){
 
   // Procedure: List;
   envmap.emplace("list", EnvResult(ProcedureType, list));
+
+  // Procedure: first;
+  envmap.emplace("first", EnvResult(ProcedureType, first));
 }

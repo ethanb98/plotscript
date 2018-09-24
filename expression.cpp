@@ -41,7 +41,6 @@ Expression & Expression::operator=(const Expression & a){
   return *this;
 }
 
-
 Atom & Expression::head(){
   return m_head;
 }
@@ -112,9 +111,9 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
 		if(env.is_exp(head)){
 			return env.get_exp(head);
 		}
-		else if (head.asSymbol() == "list") {
+		/*else if (head.asSymbol() == "list") {
 			return Expression(m_tail);
-		}
+		}*/
 		else{
 			throw SemanticError("Error during evaluation: unknown symbol");
 		}
@@ -185,26 +184,29 @@ Expression Expression::handle_define(Environment & env){
 // difficult with the ast data structure used (no parent pointer).
 // this limits the practical depth of our AST
 Expression Expression::eval(Environment & env){
-  
-  if(m_tail.empty()){
-    return handle_lookup(m_head, env);
-  }
-  // handle begin special-form
-  else if(m_head.isSymbol() && m_head.asSymbol() == "begin"){
-    return handle_begin(env);
-  }
-  // handle define special-form
-  else if(m_head.isSymbol() && m_head.asSymbol() == "define"){
-    return handle_define(env);
-  }
-   // else attempt to treat as procedure
-  else{ 
-    std::vector<Expression> results;
-    for(Expression::IteratorType it = m_tail.begin(); it != m_tail.end(); ++it){
-      results.push_back(it->eval(env));
-    }
-    return apply(m_head, results, env);
-  }
+	
+	if(m_tail.empty()){
+		if (m_head.isSymbol() && (m_head.asSymbol() == "list")) {
+			return Expression();
+		}
+		return handle_lookup(m_head, env);
+	}
+	// handle begin special-form
+	else if(m_head.isSymbol() && m_head.asSymbol() == "begin"){
+		return handle_begin(env);
+	}
+	// handle define special-form
+	else if(m_head.isSymbol() && m_head.asSymbol() == "define"){
+		return handle_define(env);
+	}
+	// else attempt to treat as procedure
+	else{ 
+		std::vector<Expression> results;
+		for(Expression::IteratorType it = m_tail.begin(); it != m_tail.end(); ++it){
+		results.push_back(it->eval(env));
+		}
+		return apply(m_head, results, env);
+	}
 }
 
 

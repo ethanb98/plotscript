@@ -92,6 +92,9 @@ private:
 
   // helper to set type and value of Complex
   void setComplex(std::complex<double> value);
+
+  // helper to set type of List
+  void setList();
 };
 
 /// inequality comparison for Atom

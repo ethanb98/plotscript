@@ -85,6 +85,7 @@ private:
 
   // convenience typedef
   typedef std::vector<Expression>::iterator IteratorType;
+  typedef std::vector<Expression>::iterator ListType;
   
   // internal helper methods
   Expression handle_lookup(const Atom & head, const Environment & env);
