@@ -24,6 +24,7 @@ Expression::Expression(const Expression & a){
 
 // constructor for list
 Expression::Expression(const std::vector<Expression> & a) {
+	m_head.setList();
 	m_tail = a;
 }
 
@@ -61,9 +62,9 @@ bool Expression::isHeadComplex() const noexcept{
 	return m_head.isComplex();
 }
 
-/*bool Expression::isHeadList() const noexcept {
+bool Expression::isHeadList() const noexcept {
 	return m_head.isList();
-}*/
+}
 
 void Expression::append(const Atom & a){
   m_tail.emplace_back(a);
@@ -111,9 +112,6 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
 		if(env.is_exp(head)){
 			return env.get_exp(head);
 		}
-		/*else if (head.asSymbol() == "list") {
-			return Expression(m_tail);
-		}*/
 		else{
 			throw SemanticError("Error during evaluation: unknown symbol");
 		}
@@ -187,7 +185,7 @@ Expression Expression::eval(Environment & env){
 	
 	if(m_tail.empty()){
 		if (m_head.isSymbol() && (m_head.asSymbol() == "list")) {
-			return Expression();
+			return Expression(m_tail);
 		}
 		return handle_lookup(m_head, env);
 	}

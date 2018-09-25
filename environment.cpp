@@ -177,7 +177,7 @@ Expression real(const std::vector<Expression> & args) {
 		}
 	}
 	else {
-		throw SemanticError("Error in call to complex real: invalid argument/s");
+		throw SemanticError("Error in call to complex real: invalid number of arguments");
 	}
 }
 
@@ -194,7 +194,7 @@ Expression imag(const std::vector<Expression> & args) {
 		}
 	}
 	else {
-		throw SemanticError("Error in call to complex imaginary: invalid argument.");
+		throw SemanticError("Error in call to complex imaginary: invalid number of arguments.");
 	}
 }
 
@@ -211,7 +211,7 @@ Expression abs(const std::vector<Expression> & args) {
 		}
 	}
 	else {
-		throw SemanticError("Error in call to complex absolute: invalid argument.");
+		throw SemanticError("Error in call to complex absolute: invalid number of arguments.");
 	}
 }
 
@@ -221,14 +221,14 @@ Expression arg(const std::vector<Expression> & args) {
 	if (nargs_equal(args, 1)) {
 		if (args[0].isHeadComplex()) {
 			result = std::arg(args[0].head().asComplex());
-			return Expression(result);
+			return Expression(result.real());
 		}
 		else {
 			throw SemanticError("Error in call to complex angle/phase: invalid argument.");
 		}
 	}
 	else {
-		throw SemanticError("Error in call to complex angle/phase: invalid argument.");
+		throw SemanticError("Error in call to complex angle/phase: invalid number of arguments.");
 	}
 }
 
@@ -245,7 +245,7 @@ Expression conj(const std::vector<Expression> & args) {
 		}
 	}
 	else {
-		throw SemanticError("Error in call to complex conjugate: invalid argument.");
+		throw SemanticError("Error in call to complex conjugate: invalid number of arguments.");
 	}
 }
 
@@ -399,21 +399,14 @@ Expression list(const std::vector<Expression> & args) {
 }
 
 Expression first(const std::vector<Expression> & args) {
-	std::vector<Expression> result;
-	result = args;
+	//std::vector<Expression> result = args;
 	if (nargs_equal(args, 1)) {
-		if (result[0].isHeadNumber()) {
-			throw SemanticError("Error: argument to first is not a list.");
-		}
-		else if (result[0].isHeadSymbol()) {
-			throw SemanticError("Error: argument to first is not a list.");
-		}
-		else if (result[0].isHeadComplex()) {
-			throw SemanticError("Error: argument to first is not a list.");
+		if (!args[0].isHeadList()) {
+			throw SemanticError("Error: argument to first is an empty list.");
 		}
 		else {
-			if (result[0] != Expression()) {
-				return Expression(*result[0].tailConstBegin());
+			if (args[0].tailConstBegin() != args[0].tailConstEnd()) {
+				return Expression(*args[0].tailConstBegin());
 			}
 			else {
 				throw SemanticError("Error: argument to first is an empty list");
@@ -421,7 +414,132 @@ Expression first(const std::vector<Expression> & args) {
 		}
 	}
 	else {
-		throw SemanticError("Error: more than one argument in call to first.");
+		throw SemanticError("Error in call to first: Invalid number of arguments.");
+	}
+}
+
+Expression rest(const std::vector<Expression> & args) {
+	std::vector<Expression> result;
+	if (nargs_equal(args, 1)) {
+		if (!args[0].isHeadList()) {
+			throw SemanticError("Error: argument to rest is not a list.");
+		}
+		else {
+			if (args[0].tailConstBegin() != args[0].tailConstEnd()) {
+				auto e = args[0].tailConstBegin();
+				e++;
+				for (e; e != args[0].tailConstEnd(); e++) {
+					result.push_back(Expression(*e));
+				}
+				return Expression(result);
+			}
+			else {
+				throw SemanticError("Error: argument to rest is an empty list");
+			}
+		}
+	}
+	else {
+		throw SemanticError("Error in call to rest: Invalid number of arguments.");
+	}
+}
+
+Expression length(const std::vector<Expression> & args) {
+	if (nargs_equal(args, 1)) {
+		if (args[0].isHeadList()) {
+			int counter = 0;
+			for (auto e = args[0].tailConstBegin(); e != args[0].tailConstEnd(); e++)
+			{
+				counter++;
+			}
+			return Expression(counter);
+		}
+		else {
+			throw SemanticError("Error: argument to length is not a list.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to length: Invalid number of arguments.");
+	}
+}
+
+Expression append(const std::vector<Expression> & args) {
+	std::vector<Expression> result;
+	if (nargs_equal(args, 2)) {
+		if (args[0].isHeadList()) {
+			if (!args[1].isHeadList()) {
+				for (auto e = args[0].tailConstBegin(); e != args[0].tailConstEnd(); e++) {
+					result.push_back(Expression(*e));
+				}
+				result.push_back(args[1]);
+				return Expression(result);
+			}
+			else {
+				throw SemanticError("Error: argument to append is a list");
+			}
+		}
+		else {
+			throw SemanticError("Error: argument to append is not a list.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to append: Invalid number of arguments.");
+	}
+}
+
+Expression join(const std::vector<Expression> & args) {
+	std::vector<Expression> result;
+	if (nargs_equal(args, 2)) {
+		if (args[0].isHeadList()) {
+			if (args[1].isHeadList()) {
+				for (auto e = args[0].tailConstBegin(); e != args[0].tailConstEnd(); e++) {
+					result.push_back(Expression(*e));
+				}
+				for (auto f = args[1].tailConstBegin(); f != args[1].tailConstEnd(); f++) {
+					result.push_back(Expression(*f));
+				}
+				return Expression(result);
+			}
+			else {
+				throw SemanticError("Error: argument to join is not a list.");
+			}
+		}
+		else {
+			throw SemanticError("Error: argument to join is not a list.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to join: Invalid number of arguments.");
+	}
+}
+
+Expression range(const std::vector<Expression> & args) {
+	std::vector<Expression> result;
+	if (nargs_equal(args, 3)) {
+		if (args[0].isHeadNumber() && args[1].isHeadNumber() && args[2].isHeadNumber()) {
+			double e = args[0].head().asNumber();
+			double f = args[1].head().asNumber();
+			double g = args[2].head().asNumber();
+			if( g > 0 ) {
+				if (e < f) {
+					for (e; e <= f; e = e + g) {
+						result.push_back(Expression(e));
+					}
+					return Expression(result);
+				}
+				else {
+					throw SemanticError("Error: begin greater than end in range.");
+				}
+			}
+			else {
+				throw SemanticError("Error: negative or zero increment in range.");
+			}			
+		}	
+		else {
+			throw SemanticError("Error: argmument to range is not a number.");
+		}
+	}
+	else {
+		throw SemanticError("Error in call to range: Invalid number of arguments");
 	}
 }
 
@@ -567,4 +685,19 @@ void Environment::reset(){
 
   // Procedure: first;
   envmap.emplace("first", EnvResult(ProcedureType, first));
+
+  // Procedure: rest;
+  envmap.emplace("rest", EnvResult(ProcedureType, rest));
+
+  // Procedure: length;
+  envmap.emplace("length", EnvResult(ProcedureType, length));
+
+  // Procedure: append;
+  envmap.emplace("append", EnvResult(ProcedureType, append));
+
+  // Procedure: join;
+  envmap.emplace("join", EnvResult(ProcedureType, join));
+
+  // Procedure: range;
+  envmap.emplace("range", EnvResult(ProcedureType, range));
 }

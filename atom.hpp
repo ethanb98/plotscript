@@ -6,7 +6,6 @@ Defines the Atom type and associated functions.
 
 #include "token.hpp"
 #include <complex>
-#include <vector>
 
 /*! \class Atom
 \brief A variant type that may be a Number or Symbol or the default type None.
@@ -53,7 +52,7 @@ public:
   bool isComplex() const noexcept;
 
   /// predicate to determine if an Atom is of type List
-  //bool isList() const noexcept;
+  bool isList() const noexcept;
 
   /// value of Atom as a number, return 0 if not a Number
   double asNumber() const noexcept;
@@ -68,10 +67,13 @@ public:
   /// equality comparison based on type and value
   bool operator==(const Atom & right) const noexcept;
 
+  // helper to set type of List
+  void setList();
+
 private:
 
   // internal enum of known types
-  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind/*, ListKind*/};
+  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind, ListKind};
 
   // track the type
   Type m_type;
@@ -92,9 +94,6 @@ private:
 
   // helper to set type and value of Complex
   void setComplex(std::complex<double> value);
-
-  // helper to set type of List
-  void setList();
 };
 
 /// inequality comparison for Atom
