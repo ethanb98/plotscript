@@ -412,7 +412,7 @@ Expression first(const std::vector<Expression> & args) {
 	//std::vector<Expression> result = args;
 	if (nargs_equal(args, 1)) {
 		if (!args[0].isHeadList()) {
-			throw SemanticError("Error: argument to first is an empty list.");
+			throw SemanticError("Error: argument to first is not a list.");
 		}
 		else {
 			if (args[0].tailConstBegin() != args[0].tailConstEnd()) {

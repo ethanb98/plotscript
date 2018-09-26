@@ -341,14 +341,6 @@ TEST_CASE("Test the division procedure: div", "[environment]") {
 	REQUIRE_THROWS_AS(pdiv(args), SemanticError);
 }
 
-/*TEST_CASE("Test the list procedure: list", "[environment]") {
-	Environment env;
-	Procedure plist = env.get_proc(Atom("list"));
-	std::vector<Expression> args;
-	
-
-}*/
-
 TEST_CASE("Test the real procedure: real", "[environment]") {
 	Environment env;
 	Procedure preal = env.get_proc(Atom("real"));
@@ -748,7 +740,7 @@ TEST_CASE("Test the tangent procedure: tan", "[environment]") {
 	args.clear();
 	REQUIRE(args.empty());
 
-	INFO("Testing tan for throw error argument: argument is undefined")
+	//INFO("Testing tan for throw error argument: argument is undefined")
 	//args.emplace_back((atan(1) * 4) / 2);
 	//REQUIRE_THROWS_AS(ptan(args), SemanticError);
 }
@@ -756,7 +748,173 @@ TEST_CASE("Test the tangent procedure: tan", "[environment]") {
 TEST_CASE("Test the list procedure: list", "[environment]") {
 	Environment env;
 	Procedure plist = env.get_proc(Atom("list"));
-	std::vector<Expression> args;
+	std::vector<Expression> args1;
+	std::vector<Expression> args2;
+	args1 = { Expression(0), Expression(1), Expression(2), Expression(3) };
+	REQUIRE(plist(args1).isHeadList());
+	args2 = { Expression(0), Expression(1), Expression(2), Expression(3) };
+	REQUIRE(plist(args2).isHeadList());
+	REQUIRE(plist(args1) == plist(args2));
+	REQUIRE(plist(args1) == Expression(args2));
+	REQUIRE(plist(args2) == plist(args1));
+	REQUIRE(plist(args2) == Expression(args1));
+}
+
+TEST_CASE("Test the list procedure: first", "[environment]") {
+	Environment env;
+	Procedure plist = env.get_proc(Atom("list"));
+	Procedure pfirst = env.get_proc(Atom("first"));
+
+	INFO("Testing first for proper outcome")
+	std::vector<Expression> args1 = { Expression(1), Expression(2), Expression(3) };
+	std::vector<Expression> args2 = { plist(args1) };
+	REQUIRE(pfirst(args2) == Expression(1));
+	
+	INFO("Testing first for multiple arguments")
+	std::vector<Expression> args3 = { Expression(1), Expression(2), Expression(3) };
+	std::vector<Expression> args4 = { plist(args1), plist(args3) };
+	REQUIRE_THROWS_AS(pfirst(args4), SemanticError);
+
+	INFO("Testing first for argument to first is an empty list")
+	std::vector<Expression> args5 = { };
+	std::vector<Expression> args6 = { plist(args5) };
+	REQUIRE_THROWS_AS(pfirst(args6), SemanticError);
+
+	INFO("Testing first for argument to first is not a list")
+	std::vector<Expression> args7 = { Expression(1) };
+	REQUIRE_THROWS_AS(pfirst(args7), SemanticError);
+}
+
+TEST_CASE("Test the list procedure: rest", "[environment]") {
+	Environment env;
+	Procedure plist = env.get_proc(Atom("list"));
+	Procedure prest = env.get_proc(Atom("rest"));
+
+	INFO("Testing rest for proper outcome")
+	std::vector<Expression> args1 = { Expression(1), Expression(2), Expression(3) };
+	std::vector<Expression> args2 = { plist(args1) };
+	std::vector<Expression> args3 = { Expression(2), Expression(3) };
+	REQUIRE(prest(args2) == plist(args3));
+
+	INFO("Testing rest for multiple arguments")
+	std::vector<Expression> args4 = { plist(args1), plist(args3) };
+	REQUIRE_THROWS_AS(prest(args4), SemanticError);
+
+	INFO("Testing rest for argument to rest is an empty list")
+	std::vector<Expression> args5 = {};
+	std::vector<Expression> args6 = { plist(args5) };
+	REQUIRE_THROWS_AS(prest(args6), SemanticError);
+
+	INFO("Testing rest for argument to rest is not a list")
+	std::vector<Expression> args7 = { Expression(1) };
+	REQUIRE_THROWS_AS(prest(args7), SemanticError);
+}
+
+TEST_CASE("Test the list procedure: length", "[environment]") {
+	Environment env;
+	Procedure plist = env.get_proc(Atom("list"));
+	Procedure plength = env.get_proc(Atom("length"));
+
+	INFO("Testing length for proper outcome")
+	std::vector<Expression> args1 = { Expression(1), Expression(2), Expression(3) };
+	std::vector<Expression> args2 = { plist(args1) };
+	REQUIRE(plength(args2) == Expression(3));
+
+	INFO("Testing length for multiple arguments")
+	std::vector<Expression> args3 = { Expression(2), Expression(4), Expression(6) };
+	std::vector<Expression> args4 = { plist(args1), plist(args3) };
+	REQUIRE_THROWS_AS(plength(args4), SemanticError);
+
+	INFO("Testing length for argument to length special case")
+	std::vector<Expression> args5 = {};
+	std::vector<Expression> args6 = { plist(args5) };
+	REQUIRE(plength(args6) == Expression(0));
+
+	INFO("Testing length for argument to length is not a list")
+	std::vector<Expression> args7 = { Expression(1) };
+	REQUIRE_THROWS_AS(plength(args7), SemanticError);
+}
+
+TEST_CASE("Test the list procedure: append", "[environment]") {
+	Environment env;
+	Procedure plist = env.get_proc(Atom("list"));
+	Procedure pappend = env.get_proc(Atom("append"));
+
+	INFO("Testing append for proper outcome")
+	std::vector<Expression> args1 = { Expression(1), Expression(2), Expression(3) };
+	std::vector<Expression> args2 = { plist(args1), Expression(2) };
+	std::vector<Expression> args3 = { Expression(1), Expression(2), Expression(3), Expression(2) };
+	REQUIRE(pappend(args2) == plist(args3));
+
+	INFO("Testing append for multiple arguments")
+	std::vector<Expression> args4 = { Expression(2), plist(args3) };
+	REQUIRE_THROWS_AS(pappend(args4), SemanticError);
+
+	INFO("Testing append for argument to append empty list special case")
+	std::vector<Expression> args5 = {};
+	std::vector<Expression> args6 = { plist(args5), Expression(2) };
+	std::vector<Expression> args7 = { Expression(2) };
+	REQUIRE(pappend(args6) == plist(args7));
+
+	INFO("Testing append for argument to append is not a list")
+	std::vector<Expression> args8 = { Expression(1) };
+	REQUIRE_THROWS_AS(pappend(args8), SemanticError);
+}
+
+TEST_CASE("Test the list procedure: join", "[environment]") {
+	Environment env;
+	Procedure plist = env.get_proc(Atom("list"));
+	Procedure pjoin = env.get_proc(Atom("join"));
+
+	INFO("Testing join for proper outcome")
+	std::vector<Expression> args1 = { Expression(1), Expression(2) };
+	std::vector<Expression> args2 = { Expression(3), Expression(4) };
+	std::vector<Expression> args3 = { plist(args1), plist(args2) };
+	std::vector<Expression> args4 = { Expression(1), Expression(2), Expression(3), Expression(4) };
+	REQUIRE(pjoin(args3) == plist(args4));
+
+	INFO("Testing join for multiple arguments or too few arguments")
+	std::vector<Expression> args5 = { plist(args1), plist(args2), plist(args3) };
+	REQUIRE_THROWS_AS(pjoin(args5), SemanticError);
+	std::vector<Expression> args6 = { plist(args1) };
+	REQUIRE_THROWS_AS(pjoin(args6), SemanticError);
+
+	INFO("Testing join for argument to join empty list special case")
+	std::vector<Expression> args7 = {};
+	std::vector<Expression> args8 = {};
+	std::vector<Expression> args9 = { plist(args7), plist(args8) };
+	REQUIRE(pjoin(args9) == plist(args8));
+
+	INFO("Testing join for argument to join is not a list")
+	std::vector<Expression> args10 = { Expression(1) };
+	REQUIRE_THROWS_AS(pjoin(args10), SemanticError);
+}
+
+TEST_CASE("Test the list procedure: range", "[environment]") {
+	Environment env;
+	Procedure plist = env.get_proc(Atom("list"));
+	Procedure prange = env.get_proc(Atom("range"));
+
+	INFO("Testing range for proper outcome")
+	std::vector<Expression> args1 = { Expression(1), Expression(5), Expression(1) };
+	std::vector<Expression> args2 = { Expression(1), Expression(2), Expression(3), Expression(4), Expression(5) };
+	REQUIRE(prange(args1) == plist(args2));
+
+	INFO("Testing range for multiple arguments or too few arguments")
+	std::vector<Expression> args3 = { Expression(1), Expression(10), Expression(2), Expression(4) };
+	REQUIRE_THROWS_AS(prange(args3), SemanticError);
+	std::vector<Expression> args4 = { Expression(1) };
+	REQUIRE_THROWS_AS(prange(args4), SemanticError);
+	std::vector<Expression> args5 = {};
+	REQUIRE_THROWS_AS(prange(args5), SemanticError);
+
+	INFO("Testing range for argument to range negative range increase")
+	std::vector<Expression> args6 = { Expression(1), Expression(10), Expression(-1) };
+	REQUIRE_THROWS_AS(prange(args6), SemanticError);
+
+	INFO("Testing range for argument begin range than end range.")
+	std::vector<Expression> args7 = { Expression(10), Expression(1), Expression(1) };
+	REQUIRE_THROWS_AS(prange(args7), SemanticError);
 }
 
 TEST_CASE( "Test reset", "[environment]" ) {
