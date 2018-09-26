@@ -180,7 +180,7 @@ bool Atom::operator==(const Atom & right) const noexcept{
   case ComplexKind:
   {
 	  if (right.m_type != ComplexKind) return false;
-	  return complexValue == right.complexValue;
+	  //return complexValue == right.complexValue;
 	  std::complex<double> cleft = complexValue;
 	  std::complex<double> cright = right.complexValue;
 	  std::complex<double> difference = std::abs(cleft - cright);

@@ -131,31 +131,39 @@ Expression div(const std::vector<Expression> & args){
 
   std::complex<double> result = 0; 
   bool complexArgs = false;
-
-  if(nargs_equal(args,2)){
-    if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) ){
-      result = args[0].head().asNumber() / args[1].head().asNumber();
-    }
-	else if( (args[0].isHeadNumber()) && (args[1].isHeadComplex()) ){
-		result = args[0].head().asNumber() / args[1].head().asComplex();
-		complexArgs = true;
-	}
-	else if ( (args[0].isHeadComplex()) && (args[1].isHeadNumber()) ) {
-		result = args[0].head().asComplex() / args[1].head().asNumber();
-		complexArgs = true;
-	}
-	else if ((args[0].isHeadComplex()) && (args[1].isHeadComplex())) {
-		result = args[0].head().asComplex() / args[1].head().asComplex();
-		complexArgs = true;
-	}
-    else{      
-      throw SemanticError("Error in call to division: invalid argument.");
-    }
+  if (nargs_equal(args, 1)) {
+	  if (args[0].isHeadNumber()) {
+		  result = 1 / args[0].head().asNumber();
+	  }
+	  else if (args[0].isHeadComplex()) {
+		  std::complex<double> divide(1.0, 0.0);
+		  result = divide / args[0].head().asComplex();
+		  complexArgs = true;
+	  }
+	  else {
+		  throw SemanticError("Error: single argument is not a number or complex.");
+	  }
   }
-  else{
-    throw SemanticError("Error in call to division: invalid number of arguments.");
+  else {
+	  if (args[0].isHeadNumber()) {
+		  result = args[0].head().asNumber() * args[0].head().asNumber();
+	  }
+	  else if (args[0].isHeadComplex()) {
+		  result = args[0].head().asComplex() * args[0].head().asComplex();
+	  }
+	  for (auto & a : args) {
+		  if (a.isHeadNumber()) {
+			  result /= a.head().asNumber();
+		  }
+		  else if (a.isHeadComplex()) {
+			  result /= a.head().asComplex();
+			  complexArgs = true;
+		  }
+		  else {
+			  throw SemanticError("Error in call to division: invalid argument.");
+		  }
+	  }
   }
-
   if (complexArgs == false) {
 	  return Expression(result.real());
   }
@@ -327,6 +335,7 @@ Expression ln(const std::vector<Expression> & args){
   if(nargs_equal(args,1)){
     if( (args[0].isHeadNumber()) && (args[0].head().asNumber() > 0) ){
 		result = std::log(args[0].head().asNumber());
+		return Expression(result);
     }
     else{      
       throw SemanticError("Error in call to natural log: invalid argument (0 or negative number).");
@@ -335,7 +344,6 @@ Expression ln(const std::vector<Expression> & args){
   else{
     throw SemanticError("Error in call to natural log: invalid number of arguments.");
   }
-  return Expression(result);
 };
 
 Expression sin(const std::vector<Expression> & args) {
@@ -345,6 +353,7 @@ Expression sin(const std::vector<Expression> & args) {
 	if (nargs_equal(args, 1)) {
 		if (args[0].isHeadNumber()) {
 			result = std::sin(args[0].head().asNumber());
+			return Expression(result);
 		}
 		else {
 			throw SemanticError("Error in call to sine: invalid argument.");
@@ -353,7 +362,6 @@ Expression sin(const std::vector<Expression> & args) {
 	else {
 		throw SemanticError("Error in call to sine: invalid number of arguments.");
 	}
-	return Expression(result);
 };
 
 Expression cos(const std::vector<Expression> & args) {
@@ -363,6 +371,8 @@ Expression cos(const std::vector<Expression> & args) {
 	if (nargs_equal(args, 1)) {
 		if (args[0].isHeadNumber()) {
 			result = std::cos(args[0].head().asNumber());
+			return Expression(result);
+
 		}
 		else {
 			throw SemanticError("Error in call to cosine: invalid argument.");
@@ -371,7 +381,6 @@ Expression cos(const std::vector<Expression> & args) {
 	else {
 		throw SemanticError("Error in call to cosine: invalid number of arguments.");
 	}
-	return Expression(result);
 };
 
 Expression tan(const std::vector<Expression> & args) {
@@ -381,6 +390,8 @@ Expression tan(const std::vector<Expression> & args) {
 	if (nargs_equal(args, 1)) {
 		if (args[0].isHeadNumber()) {
 			result = std::tan(args[0].head().asNumber());
+			return Expression(result);
+
 		}
 		else {
 			throw SemanticError("Error in call to tangent: invalid argument.");
@@ -389,7 +400,6 @@ Expression tan(const std::vector<Expression> & args) {
 	else {
 		throw SemanticError("Error in call to tangent: invalid number of arguments.");
 	}
-	return Expression(result);
 };
 
 Expression list(const std::vector<Expression> & args) {	
