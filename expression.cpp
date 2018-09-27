@@ -157,7 +157,7 @@ Expression Expression::handle_define(Environment & env){
 
   // but tail[0] must not be a special-form or procedure
   std::string s = m_tail[0].head().asSymbol();
-  if((s == "define") || (s == "begin")){
+  if((s == "define") || (s == "begin") || (s == "list") || (s == "lambda")){
     throw SemanticError("Error during evaluation: attempt to redefine a special-form");
   }
   
@@ -176,6 +176,43 @@ Expression Expression::handle_define(Environment & env){
   env.add_exp(m_tail[0].head(), result);
   
   return result;
+}
+
+Expression Expression::handle_lambda(Environment & env) {
+	if (m_tail.size() != 2) {
+		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
+	}
+	// tail[0] and tail[1] must be symbol
+	if (!m_tail[0].isHeadSymbol() || !m_tail[1].isHeadSymbol()) {
+		throw SemanticError("Error during evaluation: lambda argument to define not symbol");
+	}
+
+	// but tail[0] must not be a special-form or procedure
+	std::string s = m_tail[0].head().asSymbol();
+	if ((s == "define") || (s == "begin") || (s == "list") || (s == "lambda")) {
+		throw SemanticError("Error during evaluation: attempt to redefine a lambda special-form");
+	}
+
+	if (env.is_proc(m_head) || env.is_proc(m_tail[0].head().asSymbol()) || !env.is_proc(m_tail[1].head().asSymbol())) {
+		throw SemanticError("Error during evaluation: attempt to redefine a lambda built-in procedure");
+	}
+
+	if (env.is_exp(m_head)) {
+		throw SemanticError("Error during evaluation: attempt to redefine a lambda previously defined symbol");
+	}
+
+	std::vector<Expression> express;
+	std::vector<Expression> result;
+
+	express.push_back(m_tail[0].head());
+	for (auto e = m_tail[0].tailConstBegin(); e != m_tail[0].tailConstEnd(); e++) {
+		express.push_back(Expression(*e));
+	}
+
+	result.push_back(express);
+	result.push_back(m_tail[1]);
+	return result;
+
 }
 
 // this is a simple recursive version. the iterative version is more
@@ -197,6 +234,10 @@ Expression Expression::eval(Environment & env){
 	else if(m_head.isSymbol() && m_head.asSymbol() == "define"){
 		return handle_define(env);
 	}
+	// handle lambda special-form
+	else if (m_head.isSymbol() && m_head.asSymbol() == "lambda") {
+		return handle_lambda(env);
+	}
 	// else attempt to treat as procedure
 	else{ 
 		std::vector<Expression> results;
@@ -209,11 +250,17 @@ Expression Expression::eval(Environment & env){
 
 
 std::ostream & operator<<(std::ostream & out, const Expression & exp){
-
+	Environment env;
 	if (!exp.isHeadComplex()) {
 		out << "(";
 	}
-  out << exp.head();
+	if (env.is_proc(exp.head()) && exp.isHeadSymbol() && (exp.head().asSymbol() != "lambda")) {
+		out << exp.head();
+		out << " ";
+	}
+	else {
+		out << exp.head();
+	}
 
   for(auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e){
 	out << *e;

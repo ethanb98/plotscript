@@ -94,6 +94,7 @@ private:
   Expression handle_lookup(const Atom & head, const Environment & env);
   Expression handle_define(Environment & env);
   Expression handle_begin(Environment & env);
+  Expression handle_lambda(Environment & env);
 };
 
 /// Render expression to output stream
