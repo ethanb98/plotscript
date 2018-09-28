@@ -302,7 +302,6 @@ Expression Expression::handle_apply(Environment & env) {
 
 	Atom op = m_tail[0].head();
 	return apply(op, args, env);
-
 }
 
 // this is a simple recursive version. the iterative version is more
