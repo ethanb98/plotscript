@@ -30,13 +30,13 @@ Expression::Expression(const std::vector<Expression> & a) {
 	m_tail = a;
 }
 
-/*Expression::Expression(const Atom & a, const std::vector<Expression> & exp) {
+Expression::Expression(const Atom & a, const std::vector<Expression> & exp) {
 	m_head = a;
 	for (auto e : exp) {
 		m_tail.push_back(e);
 	}
 
-}*/
+}
 
 Expression & Expression::operator=(const Expression & a){
 
@@ -135,6 +135,15 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
   // call proc with args
   return proc(args);
 }
+
+/*Expression apply(const std::vector<Expression> & args) {
+	std::vector<Expression> exp;
+	for (auto e = args[1].tailConstBegin(); e != args[1].tailConstEnd(); e++) {
+		exp.push_back(*e);
+	}
+
+	Expression result = Expression(args[0].head(), exp);
+}*/
 
 Expression Expression::handle_lookup(const Atom & head, const Environment & env){
     if(head.isSymbol()){ // if symbol is in env return value
@@ -244,6 +253,58 @@ Expression Expression::handle_lambda(Environment & env) {
 	return result;
 }
 
+Expression Expression::handle_apply(Environment & env) {
+	
+	Expression exp = m_tail[1].eval(env);
+	std::vector<Expression> args;
+
+
+	// tail must have size 3 or error
+	if (m_tail.size() != 2) {
+		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
+	}
+
+	// tail[0] must be symbol
+	if (!m_tail[0].isHeadSymbol()) {
+		throw SemanticError("Error during evaluation: first argument to define not symbol");
+	}
+
+	// but tail[0] must not be a special-form or procedure
+	std::string s = m_tail[0].head().asSymbol();
+	if ((s == "define") || (s == "begin") /*|| (s == "list") || (s == "lambda")*/) {
+		throw SemanticError("Error during evaluation: attempt to redefine a special-form");
+	}
+
+	if (!exp.isHeadList()) {
+		throw SemanticError("Error during evaluation: second argument is not a list");
+	}
+	
+	if (env.is_exp(m_tail[0].head()))
+	{
+			for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
+				args.push_back(*e);
+			}
+			return apply(m_tail[0].head(), args, env);
+	}
+
+	int count = 0;
+	for (auto it = m_tail[0].tailConstBegin(); it != m_tail[0].tailConstEnd(); it++) {
+		count++;
+	}
+
+	if (!env.is_proc(m_tail[0].head()) || count != 0) {
+		throw SemanticError("Error during evaluation: first argument is not a procedure");
+	}
+
+	for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
+		args.push_back(*e);
+	}
+
+	Atom op = m_tail[0].head();
+	return apply(op, args, env);
+
+}
+
 // this is a simple recursive version. the iterative version is more
 // difficult with the last data structure used (no parent pointer).
 // this limits the practical depth of our AST
@@ -266,6 +327,10 @@ Expression Expression::eval(Environment & env){
 	// handle lambda special-form
 	else if (m_head.isSymbol() && m_head.asSymbol() == "lambda") {
 		return handle_lambda(env);
+	}
+	// handle appl special-form
+	else if (m_head.isSymbol() && m_head.asSymbol() == "apply") {
+		return handle_apply(env);
 	}
 	// else attempt to treat as procedure
 	else{ 
