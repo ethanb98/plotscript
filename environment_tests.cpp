@@ -265,6 +265,14 @@ TEST_CASE("Test the negative and subtract procedure: subneg", "[environment]") {
 	args.clear();
 	REQUIRE(args.empty());
 
+	INFO("Testing subneg for number - complex")
+	args.emplace_back(4.0);
+	args.emplace_back(std::complex<double>(2.0, 2.0));
+	REQUIRE(psubneg(args) == Expression(std::complex<double>(2.0, -2.0)));
+
+	args.clear();
+	REQUIRE(args.empty());
+
 	INFO("Testing imag sub to real sub")
 	args.emplace_back(std::complex<double>(2.0, 6.0));
 	args.emplace_back(2.0);
@@ -338,6 +346,10 @@ TEST_CASE("Test the division procedure: div", "[environment]") {
 	INFO("Testing div for throw error argument: not a number")
 	args.emplace_back(4.0);
 	args.emplace_back(std::string("NotANumber"));
+	REQUIRE_THROWS_AS(pdiv(args), SemanticError);
+	args.clear();
+	REQUIRE(args.empty());
+	args.emplace_back(std::string("oops"));
 	REQUIRE_THROWS_AS(pdiv(args), SemanticError);
 }
 
@@ -428,12 +440,12 @@ TEST_CASE("Test the argument(angle/phase) procedure: arg", "[environment]") {
 	Procedure parg = env.get_proc(Atom("arg"));
 	std::vector<Expression> args;
 
-	/*INFO("Testing arg for angle of complex")
-	args.emplace_back(std::complex<double>(0.0, 1.0));
-	REQUIRE(parg(args) == Expression(1.5708));
+	INFO("Testing arg for angle of complex")
+	args.emplace_back(std::complex<double>(0.0, 0.0));
+	REQUIRE(parg(args) == Expression(0));
 
 	args.clear();
-	REQUIRE(args.empty());*/
+	REQUIRE(args.empty());
 
 	INFO("Testing arg for throw error argument: Not Complex")
 	args.emplace_back(4.0);
@@ -522,6 +534,13 @@ TEST_CASE("Test the sqaure root procedure: sqrt", "[environment]") {
 	args.emplace_back(std::complex<double>(12.0, 2.0));
 	args.emplace_back(std::complex<double>(2.0, 4.0));
 	REQUIRE_THROWS_AS(psqrt(args), SemanticError);
+
+	args.clear();
+	REQUIRE(args.empty());
+
+	INFO("Testing sqrt for throw error argument: not a number or complex")
+	args.emplace_back(std::string("Not it"));
+	REQUIRE_THROWS_AS(psqrt(args), SemanticError);
 }
 
 TEST_CASE("Test the power procedure: pow", "[environment]") {
@@ -561,21 +580,42 @@ TEST_CASE("Test the power procedure: pow", "[environment]") {
 	args.clear();
 	REQUIRE(args.empty());
 
-	INFO("Testing pow for imaginary^real=1")
+	INFO("Testing pow for imaginary^real=i")
 	args.emplace_back(std::complex<double>(0.0, 1.0));
-	args.emplace_back(std::complex<double>(5.0, 0.0));
+	args.emplace_back(5.0);
 	REQUIRE(ppow(args) == Expression(std::complex<double>(0.0, 1.0)));
 	
 	args.clear();
 	REQUIRE(args.empty());
 
-	INFO("Testing pow for real^imaginary=-1")
+	INFO("Testing pow for imaginary^real=-1")
 	args.emplace_back(std::complex<double>(0.0, 1.0));
-	args.emplace_back(std::complex<double>(2.0, 0.0));
+	args.emplace_back(2.0);
 	REQUIRE(ppow(args) == Expression(std::complex<double>(-1.0, 0.0)));
 
 	args.clear();
 	REQUIRE(args.empty());
+
+	INFO("Testing pow for real^imaginary=1")
+	args.emplace_back(1.0);
+	args.emplace_back(std::complex<double>(0.0, 1.0));
+	REQUIRE(ppow(args) == Expression(std::complex<double>(1.0, 0.0)));
+
+	args.clear();
+	REQUIRE(args.empty());
+
+	INFO("Testing pow for complex^complex")
+	args.emplace_back(std::complex<double>(0.0, 1.0));
+	args.emplace_back(std::complex<double>(0.0, 0.0));
+	REQUIRE(ppow(args) == Expression(std::complex<double>(1.0, 0.0)));
+
+	args.clear();
+	REQUIRE(args.empty());
+
+	INFO("Testinf pow for throw error argument: not a number or complex")
+	args.emplace_back(std::string("nope, not today!"));
+	args.emplace_back(2.0);
+	REQUIRE_THROWS_AS(ppow(args), SemanticError);
 
 	INFO("Testing pow for throw error argument: <2 arguments")
 	args.emplace_back(1.0);
@@ -748,16 +788,19 @@ TEST_CASE("Test the tangent procedure: tan", "[environment]") {
 TEST_CASE("Test the list procedure: list", "[environment]") {
 	Environment env;
 	Procedure plist = env.get_proc(Atom("list"));
-	std::vector<Expression> args1;
-	std::vector<Expression> args2;
-	args1 = { Expression(0), Expression(1), Expression(2), Expression(3) };
+	std::vector<Expression> args1 = { Expression(0), Expression(1), Expression(2), Expression(3) };
+	std::vector<Expression> args2 = { Expression(0), Expression(1), Expression(2), Expression(3) };
 	REQUIRE(plist(args1).isHeadList());
-	args2 = { Expression(0), Expression(1), Expression(2), Expression(3) };
 	REQUIRE(plist(args2).isHeadList());
 	REQUIRE(plist(args1) == plist(args2));
 	REQUIRE(plist(args1) == Expression(args2));
 	REQUIRE(plist(args2) == plist(args1));
 	REQUIRE(plist(args2) == Expression(args1));
+	//std::vector<Expression> args3;
+	//args3.emplace_back(std::string("define"));
+	//REQUIRE_THROWS_AS((plist(args3).isHeadList()), SemanticError);
+
+
 }
 
 TEST_CASE("Test the list procedure: first", "[environment]") {
@@ -900,7 +943,7 @@ TEST_CASE("Test the list procedure: range", "[environment]") {
 	std::vector<Expression> args2 = { Expression(1), Expression(2), Expression(3), Expression(4), Expression(5) };
 	REQUIRE(prange(args1) == plist(args2));
 
-	INFO("Testing range for multiple arguments or too few arguments")
+	INFO("Testing range for multiple throw arguments: too many or too few arguments")
 	std::vector<Expression> args3 = { Expression(1), Expression(10), Expression(2), Expression(4) };
 	REQUIRE_THROWS_AS(prange(args3), SemanticError);
 	std::vector<Expression> args4 = { Expression(1) };
@@ -908,13 +951,21 @@ TEST_CASE("Test the list procedure: range", "[environment]") {
 	std::vector<Expression> args5 = {};
 	REQUIRE_THROWS_AS(prange(args5), SemanticError);
 
-	INFO("Testing range for argument to range negative range increase")
+	INFO("Testing range for throw argument: range negative range increase")
 	std::vector<Expression> args6 = { Expression(1), Expression(10), Expression(-1) };
 	REQUIRE_THROWS_AS(prange(args6), SemanticError);
 
-	INFO("Testing range for argument begin range than end range.")
+	INFO("Testing range for throw argument: begin range than end range.")
 	std::vector<Expression> args7 = { Expression(10), Expression(1), Expression(1) };
 	REQUIRE_THROWS_AS(prange(args7), SemanticError);
+
+	INFO("Testing range for throw argument: not a number")
+	std::vector<Expression> args8;
+	args8.emplace_back(std::complex<double>(0.0, 0.0));
+	args8.emplace_back(Expression(10));
+	args8.emplace_back(Expression(1));
+	REQUIRE_THROWS_AS(prange(args8), SemanticError);
+
 }
 
 TEST_CASE( "Test reset", "[environment]" ) {

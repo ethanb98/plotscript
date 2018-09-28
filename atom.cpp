@@ -71,6 +71,9 @@ Atom & Atom::operator=(const Atom & x){
 	else if (x.m_type == ListKind) {
 		setList();
 	}
+	else if (x.m_type == LambdaKind) {
+		setLambda();
+	}
   }
   return *this;
 }
@@ -103,6 +106,9 @@ bool Atom::isList() const noexcept {
 	return m_type == ListKind;
 }
 
+bool Atom::isLambda() const noexcept {
+	return m_type == LambdaKind;
+}
 
 void Atom::setNumber(double value){
 
@@ -130,6 +136,10 @@ void Atom::setComplex(std::complex<double> value){
 
 void Atom::setList(){
 	m_type = ListKind;
+}
+
+void Atom::setLambda() {
+	m_type = LambdaKind;
 }
 
 double Atom::asNumber() const noexcept{
@@ -192,6 +202,11 @@ bool Atom::operator==(const Atom & right) const noexcept{
   case ListKind:
   {
 	  if (right.m_type != ListKind) return false;
+  }
+  break;
+  case LambdaKind:
+  {
+	  if (right.m_type != LambdaKind) return false;
   }
   break;
   default:

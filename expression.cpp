@@ -3,6 +3,8 @@
 #include <sstream>
 #include <list>
 
+#include <iostream>
+
 #include "environment.hpp"
 #include "semantic_error.hpp"
 
@@ -27,6 +29,14 @@ Expression::Expression(const std::vector<Expression> & a) {
 	m_head.setList();
 	m_tail = a;
 }
+
+/*Expression::Expression(const Atom & a, const std::vector<Expression> & exp) {
+	m_head = a;
+	for (auto e : exp) {
+		m_tail.push_back(e);
+	}
+
+}*/
 
 Expression & Expression::operator=(const Expression & a){
 
@@ -66,6 +76,10 @@ bool Expression::isHeadList() const noexcept {
 	return m_head.isList();
 }
 
+bool Expression::isHeadLambda() const noexcept {
+	return m_head.isLambda();
+}
+
 void Expression::append(const Atom & a){
   m_tail.emplace_back(a);
 }
@@ -89,16 +103,31 @@ Expression::ConstIteratorType Expression::tailConstEnd() const noexcept{
 }
 
 Expression apply(const Atom & op, const std::vector<Expression> & args, const Environment & env){
+	// if it is a lambda
+	if (env.is_exp(op)) {
+		Environment newenv = env;
+		Expression exp = newenv.get_exp(op);
+		Expression newexp = *exp.tailConstBegin();
+		Expression endexp = *exp.tail();
+		int counter = 0;
+		for (auto e = newexp.tailConstBegin(); e != newexp.tailConstEnd(); e++) {
+			newenv.shadow((*e).head().asSymbol(), newenv);
+			newenv.add_exp(Atom((*e).head()), args[counter]);
+			counter++;
+		}
+		return endexp.eval(newenv);
+	}
 
   // head must be a symbol
   if(!op.isSymbol()){
-    throw SemanticError("Error during evaluation: procedure name not symbol");
+    throw SemanticError("Error during evaluation: procedure name not a symbol");
   }
   
   // must map to a proc
   if(!env.is_proc(op)){
     throw SemanticError("Error during evaluation: symbol does not name a procedure");
   }
+
   
   // map from symbol to proc
   Procedure proc = env.get_proc(op);
@@ -122,6 +151,9 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
 	else if (head.isComplex()) {
 	  return Expression(head);
 	}
+	/*if (head.isLambda()) {
+		return Expression(head);
+	}*/
     else{
       throw SemanticError("Error during evaluation: Invalid type in terminal expression");
     }
@@ -157,7 +189,7 @@ Expression Expression::handle_define(Environment & env){
 
   // but tail[0] must not be a special-form or procedure
   std::string s = m_tail[0].head().asSymbol();
-  if((s == "define") || (s == "begin") || (s == "list") || (s == "lambda")){
+  if((s == "define") || (s == "begin") /*|| (s == "list") || (s == "lambda")*/){
     throw SemanticError("Error during evaluation: attempt to redefine a special-form");
   }
   
@@ -187,36 +219,33 @@ Expression Expression::handle_lambda(Environment & env) {
 		throw SemanticError("Error during evaluation: lambda argument to define not symbol");
 	}
 
-	// but tail[0] must not be a special-form or procedure
-	std::string s = m_tail[0].head().asSymbol();
-	if ((s == "define") || (s == "begin") || (s == "list") || (s == "lambda")) {
-		throw SemanticError("Error during evaluation: attempt to redefine a lambda special-form");
-	}
-
-	if (env.is_proc(m_head) || env.is_proc(m_tail[0].head().asSymbol()) || !env.is_proc(m_tail[1].head().asSymbol())) {
-		throw SemanticError("Error during evaluation: attempt to redefine a lambda built-in procedure");
+	if (env.is_proc(m_head) || env.is_proc(m_tail[0].head().asSymbol())) {
+		throw SemanticError("Error during evaluation: attempt to use non-supported lambda procedure");
 	}
 
 	if (env.is_exp(m_head)) {
 		throw SemanticError("Error during evaluation: attempt to redefine a lambda previously defined symbol");
 	}
 
-	std::vector<Expression> express;
-	std::vector<Expression> result;
+	std::vector<Expression> vars;
+	std::vector<Expression> allArgs;
 
-	express.push_back(m_tail[0].head());
+	vars.push_back(m_tail[0].head());
 	for (auto e = m_tail[0].tailConstBegin(); e != m_tail[0].tailConstEnd(); e++) {
-		express.push_back(Expression(*e));
+		vars.push_back(Expression(*e));
 	}
 
-	result.push_back(express);
-	result.push_back(m_tail[1]);
-	return result;
+	allArgs.push_back(vars);
+	allArgs.push_back(m_tail[1]);
 
+	Expression result = Expression(allArgs);
+	result.head().setLambda();
+
+	return result;
 }
 
 // this is a simple recursive version. the iterative version is more
-// difficult with the ast data structure used (no parent pointer).
+// difficult with the last data structure used (no parent pointer).
 // this limits the practical depth of our AST
 Expression Expression::eval(Environment & env){
 	

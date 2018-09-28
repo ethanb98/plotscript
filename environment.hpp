@@ -43,6 +43,12 @@ public:
    * definitions. */
   Environment();
 
+  Environment(const Environment & a);
+
+  Environment & operator=(const Environment & a);
+
+  void shadow(const std::string & args, Environment & a);
+
   /*! Determine if a symbol is known to the environment.
     \param sym the sumbol to lookup
     \return true if the symbol has been defined in the environment

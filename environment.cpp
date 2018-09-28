@@ -563,6 +563,23 @@ Environment::Environment(){
   reset();
 }
 
+Environment::Environment(const Environment & a) {
+	envmap = a.envmap;
+}
+
+Environment & Environment::operator=(const Environment & a) {
+	if (this != &a) {
+		envmap = a.envmap;
+	}
+	return *this;
+}
+
+void Environment::shadow(const std::string & args, Environment & newenv) {
+	if (newenv.envmap.find(args) != newenv.envmap.end() ) {
+		newenv.envmap.erase(args);
+	}
+}
+
 bool Environment::is_known(const Atom & sym) const{
   if(!sym.isSymbol()) return false;
   
@@ -591,17 +608,14 @@ Expression Environment::get_exp(const Atom & sym) const{
 }
 
 void Environment::add_exp(const Atom & sym, const Expression & exp){
-
-  if(!sym.isSymbol()){
-    throw SemanticError("Attempt to add non-symbol to environment");
-  }
-    
-  // error if overwriting symbol map
-  if(envmap.find(sym.asSymbol()) != envmap.end()){
-    throw SemanticError("Attempt to overwrite symbol in environemnt");
-  }
-
-  envmap.emplace(sym.asSymbol(), EnvResult(ExpressionType, exp)); 
+	if(!sym.isSymbol()){
+		throw SemanticError("Attempt to add non-symbol to environment (add_exp error)");
+	}
+	// error if overwriting symbol map
+	if(envmap.find(sym.asSymbol()) != envmap.end()){
+		throw SemanticError("Attempt to overwrite symbol in environemnt (add_exp error)");
+	}
+	envmap.emplace(sym.asSymbol(), EnvResult(ExpressionType, exp)); 
 }
 
 bool Environment::is_proc(const Atom & sym) const{

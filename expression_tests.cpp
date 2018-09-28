@@ -27,3 +27,10 @@ TEST_CASE( "Test symbol expression", "[expression]" ) {
   REQUIRE(exp.isHeadSymbol());
 }
 
+TEST_CASE("Testing Lambda", "[environment]") {
+	Expression exp(Atom("lambda"));
+
+	REQUIRE(!exp.isHeadNumber());
+	REQUIRE(exp.isHeadSymbol());
+
+}

@@ -38,6 +38,9 @@ public:
   /// deep-copy construct of vector expression
   Expression(const std::vector<Expression> & a);
 
+  /// deep-copy constructor of atom and vector expression
+  Expression(const Atom & a, const std::vector<Expression> & exp);
+
   /// deep-copy assign an expression  (recursive)
   Expression & operator=(const Expression & a);
 
@@ -70,6 +73,9 @@ public:
 
   /// convenience member to determine if head atom is a list
   bool isHeadList() const noexcept;
+
+  /// convenience member to determine if head atom is a lambda
+  bool isHeadLambda() const noexcept;
 
   /// Evaluate expression using a post-order traversal (recursive)
   Expression eval(Environment & env);
