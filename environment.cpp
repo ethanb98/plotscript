@@ -144,14 +144,29 @@ Expression div(const std::vector<Expression> & args){
 		  throw SemanticError("Error: single argument is not a number or complex.");
 	  }
   }
-  else {
-	  if (args[0].isHeadNumber()) {
-		  result = args[0].head().asNumber() * args[0].head().asNumber();
+  else if(nargs_equal(args, 2)) {
+	  if (args[0].isHeadNumber() && args[1].isHeadNumber()) {
+		  result = args[0].head().asNumber() / args[1].head().asNumber();
+		  //result = args[0].head().asNumber() * args[0].head().asNumber();
 	  }
-	  else if (args[0].isHeadComplex()) {
-		  result = args[0].head().asComplex() * args[0].head().asComplex();
+	  else if (args[0].isHeadNumber() && args[1].isHeadComplex()) {
+		  result = args[0].head().asNumber() / args[1].head().asComplex();
+		  complexArgs = true;
+		  //result = args[0].head().asComplex() * args[0].head().asComplex();
 	  }
-	  for (auto & a : args) {
+	  else if (args[0].isHeadComplex() && args[1].isHeadNumber()) {
+		  result = args[0].head().asComplex() / args[1].head().asNumber();
+		  complexArgs = true;
+	  }
+	  else if (args[0].isHeadComplex() && args[1].isHeadComplex()) {
+		  result = args[0].head().asComplex() / args[1].head().asComplex();
+		  complexArgs = true;
+	  }
+	  else {
+		  throw SemanticError("Error in call to division: an argument is not complex or number");
+	  }
+	  // Possible later use depending on requirements
+	  /*for (auto & a : args) {
 		  if (a.isHeadNumber()) {
 			  result /= a.head().asNumber();
 		  }
@@ -162,7 +177,10 @@ Expression div(const std::vector<Expression> & args){
 		  else {
 			  throw SemanticError("Error in call to division: invalid argument.");
 		  }
-	  }
+	  }*/
+  }
+  else {
+	  throw SemanticError("Error in call to division: invalid number of arguments");
   }
   if (complexArgs == false) {
 	  return Expression(result.real());
