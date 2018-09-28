@@ -166,6 +166,7 @@ Expression div(const std::vector<Expression> & args){
 		  throw SemanticError("Error in call to division: an argument is not complex or number");
 	  }
 	  // Possible later use depending on requirements
+
 	  /*for (auto & a : args) {
 		  if (a.isHeadNumber()) {
 			  result /= a.head().asNumber();

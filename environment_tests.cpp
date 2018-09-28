@@ -796,11 +796,8 @@ TEST_CASE("Test the list procedure: list", "[environment]") {
 	REQUIRE(plist(args1) == Expression(args2));
 	REQUIRE(plist(args2) == plist(args1));
 	REQUIRE(plist(args2) == Expression(args1));
-	//std::vector<Expression> args3;
-	//args3.emplace_back(std::string("define"));
-	//REQUIRE_THROWS_AS((plist(args3).isHeadList()), SemanticError);
-
-
+	std::vector<Expression> args3 = {};
+	REQUIRE(plist(args3).isHeadList());
 }
 
 TEST_CASE("Test the list procedure: first", "[environment]") {

@@ -110,6 +110,16 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
 		Expression newexp = *exp.tailConstBegin();
 		Expression endexp = *exp.tail();
 		int counter = 0;
+		int count = 0;
+
+		for (auto f = newexp.tailConstBegin(); f != newexp.tailConstEnd(); f++) {
+			count++;
+		}
+
+		if (args.size() != count) {
+			throw SemanticError("Error in call to procedure: invalid number of arguments.");
+		}
+
 		for (auto e = newexp.tailConstBegin(); e != newexp.tailConstEnd(); e++) {
 			newenv.shadow((*e).head().asSymbol(), newenv);
 			newenv.add_exp(Atom((*e).head()), args[counter]);
@@ -136,15 +146,6 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
   return proc(args);
 }
 
-/*Expression apply(const std::vector<Expression> & args) {
-	std::vector<Expression> exp;
-	for (auto e = args[1].tailConstBegin(); e != args[1].tailConstEnd(); e++) {
-		exp.push_back(*e);
-	}
-
-	Expression result = Expression(args[0].head(), exp);
-}*/
-
 Expression Expression::handle_lookup(const Atom & head, const Environment & env){
     if(head.isSymbol()){ // if symbol is in env return value
 		if(env.is_exp(head)){
@@ -160,9 +161,6 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
 	else if (head.isComplex()) {
 	  return Expression(head);
 	}
-	/*if (head.isLambda()) {
-		return Expression(head);
-	}*/
     else{
       throw SemanticError("Error during evaluation: Invalid type in terminal expression");
     }
@@ -271,7 +269,7 @@ Expression Expression::handle_apply(Environment & env) {
 
 	// but tail[0] must not be a special-form or procedure
 	std::string s = m_tail[0].head().asSymbol();
-	if ((s == "define") || (s == "begin") /*|| (s == "list") || (s == "lambda")*/) {
+	if ((s == "define") || (s == "begin")) {
 		throw SemanticError("Error during evaluation: attempt to redefine a special-form");
 	}
 
@@ -304,6 +302,59 @@ Expression Expression::handle_apply(Environment & env) {
 	return apply(op, args, env);
 }
 
+Expression Expression::handle_map(Environment & env) {
+	Expression exp = m_tail[1].eval(env);
+	std::vector<Expression> args;
+	std::vector<Expression> result;
+
+	// tail must have size 3 or error
+	if (m_tail.size() != 2) {
+		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
+	}
+
+	// tail[0] must be symbol
+	if (!m_tail[0].isHeadSymbol()) {
+		throw SemanticError("Error during evaluation: first argument to define not symbol");
+	}
+
+	// but tail[0] must not be a special-form or procedure
+	std::string s = m_tail[0].head().asSymbol();
+	if ((s == "define") || (s == "begin")) {
+		throw SemanticError("Error during evaluation: attempt to redefine a special-form");
+	}
+
+	if (!exp.isHeadList()) {
+		throw SemanticError("Error during evaluation: second argument to map not a list");
+	}
+
+	if (env.is_exp(m_tail[0].head()))
+	{
+		for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
+			args.emplace_back(*e);
+			result.push_back(apply(m_tail[0].head(), args, env));
+			args.clear();
+		}
+		return Expression(result);
+	}
+
+	int count = 0;
+	for (auto it = m_tail[0].tailConstBegin(); it != m_tail[0].tailConstEnd(); it++) {
+		count++;
+	}
+
+	if (!env.is_proc(m_tail[0].head()) || count != 0) {
+		throw SemanticError("Error during evaluation: first argument to map not a procedure");
+	}
+
+	for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
+		args.emplace_back(*e);
+		result.push_back(apply(m_tail[0].head(), args, env));
+		args.clear();
+	}
+
+	return Expression(result);
+}
+
 // this is a simple recursive version. the iterative version is more
 // difficult with the last data structure used (no parent pointer).
 // this limits the practical depth of our AST
@@ -330,6 +381,9 @@ Expression Expression::eval(Environment & env){
 	// handle appl special-form
 	else if (m_head.isSymbol() && m_head.asSymbol() == "apply") {
 		return handle_apply(env);
+	}
+	else if (m_head.isSymbol() && m_head.asSymbol() == "map") {
+		return handle_map(env);
 	}
 	// else attempt to treat as procedure
 	else{ 
