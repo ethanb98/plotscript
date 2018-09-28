@@ -27,10 +27,16 @@ TEST_CASE( "Test symbol expression", "[expression]" ) {
   REQUIRE(exp.isHeadSymbol());
 }
 
-TEST_CASE("Testing Lambda", "[environment]") {
+/*TEST_CASE("Testing Lambda", "[environment]") {
 	Expression exp(Atom("lambda"));
+
+	std::vector<Expression> args1 = { exp, Expression(Atom("+")), Expression(Atom("+ +")) };
+	//REQUIRE_THROWS_AS(exp);
+	REQUIRE_THROWS_AS(exp(args1), SemanticError);
+	//REQUIRE_NOTHROW(args1);
+
 
 	REQUIRE(!exp.isHeadNumber());
 	REQUIRE(exp.isHeadSymbol());
 
-}
+}*/

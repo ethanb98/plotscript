@@ -26,6 +26,14 @@ Expression default_proc(const std::vector<Expression> & args){
   return Expression();
 };
 
+/*
+Start of Milestone 0 functions
+Last edit: 9/28/2018
+Last Editor: Ethan Brooks
+Functions incldued below: All basic procedures
+i.e. add, subneg, div, mul
+*/
+
 Expression add(const std::vector<Expression> & args){
 
   // check all aruments are numbers, while adding
@@ -421,6 +429,14 @@ Expression tan(const std::vector<Expression> & args) {
 	}
 };
 
+/*
+Start of Milestone 1 functions
+Last edit: 9/28/2018
+Last Editor: Ethan Brooks
+Functions incldued below: List and all of its procedures
+i.e. join, append, first, rest
+*/
+
 Expression list(const std::vector<Expression> & args) {	
 	std::vector<Expression> result;
 	result = args;
@@ -595,12 +611,16 @@ Environment & Environment::operator=(const Environment & a) {
 	return *this;
 }
 
+// Shadow function created to edit the temp environment passed in,
+// chacks for redefinition of symbols
 void Environment::shadow(const std::string & args, Environment & newenv) {
 	if (newenv.envmap.find(args) != newenv.envmap.end() ) {
 		newenv.envmap.erase(args);
 	}
 }
 
+// helper function to return if it is in fact known
+// "it is known" - Khaleesi, breaker of chains, mother of dragons, queen of the andals and the first men
 bool Environment::is_known(const Atom & sym) const{
   if(!sym.isSymbol()) return false;
   

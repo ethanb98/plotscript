@@ -322,3 +322,293 @@ TEST_CASE( "Test using number as procedure", "[interpreter]" ) {
   
   REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
 }
+
+TEST_CASE("Test input of lambda", "[interpreter]") {
+
+	std::string program = "(begin (define a 1) (define x 100) (define f (lambda (x) (begin (define b 12) (+ a b x)))) (f 2) )";
+	INFO(program);
+	Expression result = run(program);
+	REQUIRE(result == Expression(15.));
+}
+
+TEST_CASE("Test of lambda begin", "[interpreter]") {
+	std::string program = "(begin (lambda (x) (* 2 x)) (define f1 (lambda (x y) (/ x y))) (f1 4 2))";
+
+	INFO(program);
+	Expression result = run(program);
+	REQUIRE(result == Expression(2.));
+}
+
+TEST_CASE("Test input of lambda apply", "[interpreter]") {
+	std::string program = "(apply + (list 1 2 3 4))";
+	INFO(program);
+	Expression result = run(program);
+	REQUIRE(result == Expression(10.));
+}
+
+TEST_CASE("Test input of lambda apply begin", "[interpreter]") {
+	std::string program = "(begin (define complexAsList(lambda(x) (list(real x) (imag x)))) (apply complexAsList (list (+ 1 (* 3 I)))))";
+	INFO(program);
+	Expression result = run(program);
+	std::vector<Expression> args1 = { Expression(1), Expression(3) };
+	REQUIRE(result == Expression(args1));
+}
+
+TEST_CASE("Test lambda apply input error second argument not list", "[interpreter]") {
+	std::string program = "(apply + 3)";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test lambda apply input error first argument not procedure", "[interpreter]") {
+	std::string program = "(apply (+ z I) (list 0))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test lambda apply input error bad division case", "[interpreter]") {
+	std::string program = "(apply / (list 1 2 4))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test input of map begin", "[interpreter]") {
+	std::string program = "(begin (define f (lambda (x) (sin x))) (map f (list (/ (- pi) 2) 0 (/ pi 2))))";
+	INFO(program);
+	std::vector<Expression> args1 = { Expression(-1), Expression(0), Expression(1) };
+	Expression result = run(program);
+	REQUIRE(result == Expression(args1));
+}
+
+TEST_CASE("Test input map unary divide", "[interpreter]") {
+	std::string program = "(map / (list 1 2 4))";
+	INFO(program);
+	std::vector<Expression> args1 = { Expression(1.), Expression(0.5), Expression(0.25) };
+	Expression result = run(program);
+	REQUIRE(result == Expression(args1));
+}
+
+TEST_CASE("Test lambda map input error second argument not list", "[interpreter]") {
+	std::string program = "(map + 3)";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test lambda map input error first argument not procedure", "[interpreter]") {
+	std::string program = "(map 3 (list 1 2 3))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test lambda map input error too many arguments case", "[interpreter]") {
+	std::string program = "(begin (define addtwo (lambda (x y) (+ x y))) (map addtwo (list 1 2 3)))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test handle lookup isHeadComplex", "[interpreter]") {
+	std::string program = "(I)";
+	INFO(program);
+	Expression result = run(program);
+	REQUIRE(result == Expression(std::complex<double>(0.0, 1.0)));
+}
+
+TEST_CASE("Test Lambda tail length incorrect", "[interpreter]") {
+	std::string program = "(lambda (x))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test Lambda tail 0 incorrect", "[interpreter]") {
+	std::string program = "(lambda 3 (+ x 2))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test Lambda tail 1 incorrect", "[interpreter]") {
+	std::string program = "(lambda (x) 1)";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test Lambda tail is proc incorrect", "[interpreter]") {
+	std::string program = "(lambda (+) (x y))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test Lambda previosuly defined incorrect", "[interpreter]") {
+	std::string program = "(begin (define a (lambda (x) (+ x 2))) (define a (lambda (x y) (+ x y))))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+
+}
+
+TEST_CASE("Test apply tail incorrect length", "[interpreter]") {
+	std::string program = "(apply +)";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test apply tail incorrect argument", "[interpreter]") {
+	std::string program = "(apply 3 (list 1 2 3))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test apply tail incorrect special argument", "[interpreter]") {
+	std::string program = "(apply define (list 1 2 3))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test append tail[1].head a list", "[interpreter]") {
+	std::string program = "(append (list 1 2 3) (list 1 2 3))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test join tail[1].head not a list", "[interpreter]") {
+	std::string program = "(join (list 1 2 3) 3)";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test join tail[0].head not a list", "[interpreter]") {
+	std::string program = "(join 3 (list 1 2 3))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test apply not a procedure", "[interpreter]") {
+	std::string program = "(apply 3 (list 1 2 3))";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+

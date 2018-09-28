@@ -11,6 +11,7 @@ TEST_CASE( "Test constructors", "[atom]" ) {
     REQUIRE(a.isNone());
     REQUIRE(!a.isNumber());
     REQUIRE(!a.isSymbol());
+	REQUIRE(!a.isComplex());
   }
 
   {
@@ -20,6 +21,7 @@ TEST_CASE( "Test constructors", "[atom]" ) {
     REQUIRE(!a.isNone());
     REQUIRE(a.isNumber());
     REQUIRE(!a.isSymbol());
+	REQUIRE(!a.isComplex());
   }
 
   {
@@ -29,9 +31,20 @@ TEST_CASE( "Test constructors", "[atom]" ) {
     REQUIRE(!a.isNone());
     REQUIRE(!a.isNumber());
     REQUIRE(a.isSymbol());
+	REQUIRE(!a.isComplex());
   }
 
+  {
+	  INFO("Complex Constructor")
+	  Atom a(std::complex<double>(1.0, 1.0));
 
+	  REQUIRE(!a.isNone());
+	  REQUIRE(!a.isNumber());
+	  REQUIRE(!a.isSymbol());
+	  REQUIRE(a.isComplex());
+
+  }
+  
   {
     INFO("Token Constructor");
     Token t("hi");

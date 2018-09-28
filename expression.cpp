@@ -30,6 +30,7 @@ Expression::Expression(const std::vector<Expression> & a) {
 	m_tail = a;
 }
 
+// constructor for a lambda kind
 Expression::Expression(const Atom & a, const std::vector<Expression> & exp) {
 	m_head = a;
 	for (auto e : exp) {
@@ -38,6 +39,7 @@ Expression::Expression(const Atom & a, const std::vector<Expression> & exp) {
 
 }
 
+// Tests equality to one another
 Expression & Expression::operator=(const Expression & a){
 
   // prevent self-assignment
@@ -105,21 +107,23 @@ Expression::ConstIteratorType Expression::tailConstEnd() const noexcept{
 Expression apply(const Atom & op, const std::vector<Expression> & args, const Environment & env){
 	// if it is a lambda
 	if (env.is_exp(op)) {
+		// artificial temp environment to delete and remove stuff
+		// gets deleted on function end
 		Environment newenv = env;
 		Expression exp = newenv.get_exp(op);
 		Expression newexp = *exp.tailConstBegin();
 		Expression endexp = *exp.tail();
 		int counter = 0;
 		unsigned int count = 0;
-
+		// iterate to find the size of the tail
 		for (auto f = newexp.tailConstBegin(); f != newexp.tailConstEnd(); f++) {
 			count++;
 		}
-
+		// if the args size does not equal the tail size, throw error to avoid core dump
 		if (args.size() != count) {
 			throw SemanticError("Error in call to procedure: invalid number of arguments.");
 		}
-
+		// iterate through the tail and call shadow function to check if redefined definition
 		for (auto e = newexp.tailConstBegin(); e != newexp.tailConstEnd(); e++) {
 			newenv.shadow((*e).head().asSymbol(), newenv);
 			newenv.add_exp(Atom((*e).head()), args[counter]);
@@ -196,7 +200,7 @@ Expression Expression::handle_define(Environment & env){
 
   // but tail[0] must not be a special-form or procedure
   std::string s = m_tail[0].head().asSymbol();
-  if((s == "define") || (s == "begin") /*|| (s == "list") || (s == "lambda")*/){
+  if((s == "define") || (s == "begin")){
     throw SemanticError("Error during evaluation: attempt to redefine a special-form");
   }
   
@@ -218,6 +222,7 @@ Expression Expression::handle_define(Environment & env){
 }
 
 Expression Expression::handle_lambda(Environment & env) {
+	// lambda tail must be of size 2
 	if (m_tail.size() != 2) {
 		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
 	}
@@ -226,10 +231,12 @@ Expression Expression::handle_lambda(Environment & env) {
 		throw SemanticError("Error during evaluation: lambda argument to define not symbol");
 	}
 
+	// if the head is a procedure, throw error
 	if (env.is_proc(m_head) || env.is_proc(m_tail[0].head().asSymbol())) {
 		throw SemanticError("Error during evaluation: attempt to use non-supported lambda procedure");
 	}
 
+	// if head is an expression
 	if (env.is_exp(m_head)) {
 		throw SemanticError("Error during evaluation: attempt to redefine a lambda previously defined symbol");
 	}
@@ -237,27 +244,26 @@ Expression Expression::handle_lambda(Environment & env) {
 	std::vector<Expression> vars;
 	std::vector<Expression> allArgs;
 
+	// iterate through, make sure to output head and then the rest if the tail
+	// push to vector of expressions to create a list
 	vars.push_back(m_tail[0].head());
 	for (auto e = m_tail[0].tailConstBegin(); e != m_tail[0].tailConstEnd(); e++) {
 		vars.push_back(Expression(*e));
 	}
-
+	// push vector of expressions to a new vector, include tail[1]
 	allArgs.push_back(vars);
 	allArgs.push_back(m_tail[1]);
-
+	// make result equal to the expression of allArgs
 	Expression result = Expression(allArgs);
+	// set lambda to true
 	result.head().setLambda();
-
+	// return the result as a list followed by expression
 	return result;
 }
 
 Expression Expression::handle_apply(Environment & env) {
-	
-	Expression exp = m_tail[1].eval(env);
-	std::vector<Expression> args;
 
-
-	// tail must have size 3 or error
+	// tail must have size 2 or error
 	if (m_tail.size() != 2) {
 		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
 	}
@@ -266,48 +272,60 @@ Expression Expression::handle_apply(Environment & env) {
 	if (!m_tail[0].isHeadSymbol()) {
 		throw SemanticError("Error during evaluation: first argument to define not symbol");
 	}
+	// evaluate the environment of m_tail[1]
+	Expression exp = m_tail[1].eval(env);
+	std::vector<Expression> args;
 
-	// but tail[0] must not be a special-form or procedure
+	// tail[0] must not be a special-form or procedure
 	std::string s = m_tail[0].head().asSymbol();
 	if ((s == "define") || (s == "begin")) {
 		throw SemanticError("Error during evaluation: attempt to redefine a special-form");
 	}
 
+	// if the tail[1] environment expression is a list, throw error
 	if (!exp.isHeadList()) {
 		throw SemanticError("Error during evaluation: second argument is not a list");
 	}
 	
+	// if head of tail[0] is a lambda expression, iterate through and output
 	if (env.is_exp(m_tail[0].head()))
 	{
+			// iterate through expression and push into vector of expressions
 			for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
 				args.push_back(*e);
 			}
+			// return the application of the vector to get the correct mathematical output
 			return apply(m_tail[0].head(), args, env);
 	}
 
+	// create a counter and iterate through the tail to ensure the size is 0
 	int count = 0;
 	for (auto it = m_tail[0].tailConstBegin(); it != m_tail[0].tailConstEnd(); it++) {
 		count++;
 	}
 
+	// if size is not 0, or environment is not a procedure, throw error
 	if (!env.is_proc(m_tail[0].head()) || count != 0) {
 		throw SemanticError("Error during evaluation: first argument is not a procedure");
 	}
 
+	// otherwise, iterate through the tail, and push onto vector of expressions args
 	for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
 		args.push_back(*e);
 	}
 
+	// return the application of vector to get the correct mathematical output
 	Atom op = m_tail[0].head();
 	return apply(op, args, env);
 }
 
 Expression Expression::handle_map(Environment & env) {
+	// evaluate the environment of tail[1] and set to expression
 	Expression exp = m_tail[1].eval(env);
 	std::vector<Expression> args;
 	std::vector<Expression> result;
 
-	// tail must have size 3 or error
+	// tail must have size 2 or error
 	if (m_tail.size() != 2) {
 		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
 	}
@@ -323,12 +341,17 @@ Expression Expression::handle_map(Environment & env) {
 		throw SemanticError("Error during evaluation: attempt to redefine a special-form");
 	}
 
+	// if the expression is not a list, throw error
 	if (!exp.isHeadList()) {
 		throw SemanticError("Error during evaluation: second argument to map not a list");
 	}
 
+	// if the environment has an expression of lambda, iterate
 	if (env.is_exp(m_tail[0].head()))
 	{
+		// iterate through and push one by one into a temporary vector of expressions args. Take
+		// the application of the expression in args and push that onto the vector of expressions
+		// called result. Clear args and repeat to do the math to each number in the list unarilly
 		for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
 			args.emplace_back(*e);
 			result.push_back(apply(m_tail[0].head(), args, env));
@@ -337,21 +360,25 @@ Expression Expression::handle_map(Environment & env) {
 		return Expression(result);
 	}
 
+	// count tail size to ensure it is 0
 	int count = 0;
 	for (auto it = m_tail[0].tailConstBegin(); it != m_tail[0].tailConstEnd(); it++) {
 		count++;
 	}
 
+	// if count is not 0, or not a procedure, throw error
 	if (!env.is_proc(m_tail[0].head()) || count != 0) {
 		throw SemanticError("Error during evaluation: first argument to map not a procedure");
 	}
 
+	// otherwise, iterate just like the lambda function, but for a function that is not a lambda
 	for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
 		args.emplace_back(*e);
 		result.push_back(apply(m_tail[0].head(), args, env));
 		args.clear();
 	}
 
+	// return the expression of result
 	return Expression(result);
 }
 
@@ -401,6 +428,7 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
 	if (!exp.isHeadComplex()) {
 		out << "(";
 	}
+	// If the expression head is a procedure and is not lambda, add a space to output
 	if (env.is_proc(exp.head()) && exp.isHeadSymbol() && (exp.head().asSymbol() != "lambda")) {
 		out << exp.head();
 		out << " ";
@@ -411,6 +439,7 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
 
   for(auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e){
 	out << *e;
+	// add correct spacing for lists and lambda
 	if ((e+1) != exp.tailConstEnd()) {
 		out << " ";
 	}
