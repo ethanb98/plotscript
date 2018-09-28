@@ -343,6 +343,14 @@ TEST_CASE("Test the division procedure: div", "[environment]") {
 	args.clear();
 	REQUIRE(args.empty());
 
+	INFO("Testing imag/real for 2 arguments")
+	args.emplace_back(std::complex<double>(2.0, 2.0));
+	args.emplace_back(4.0);
+	REQUIRE(pdiv(args) == Expression(std::complex<double>(0.5, 0.5)));
+
+	args.clear();
+	REQUIRE(args.empty());
+
 	INFO("Testing div for throw error argument: not a number")
 	args.emplace_back(4.0);
 	args.emplace_back(std::string("NotANumber"));
@@ -350,6 +358,15 @@ TEST_CASE("Test the division procedure: div", "[environment]") {
 	args.clear();
 	REQUIRE(args.empty());
 	args.emplace_back(std::string("oops"));
+	REQUIRE_THROWS_AS(pdiv(args), SemanticError);
+
+	args.clear();
+	REQUIRE(args.empty());
+
+	INFO("Testing div for throw error argument: too many args:")
+	args.emplace_back(4.0);
+	args.emplace_back(2.0);
+	args.emplace_back(12.0);
 	REQUIRE_THROWS_AS(pdiv(args), SemanticError);
 }
 

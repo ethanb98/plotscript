@@ -110,7 +110,7 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
 		Expression newexp = *exp.tailConstBegin();
 		Expression endexp = *exp.tail();
 		int counter = 0;
-		int count = 0;
+		unsigned int count = 0;
 
 		for (auto f = newexp.tailConstBegin(); f != newexp.tailConstEnd(); f++) {
 			count++;

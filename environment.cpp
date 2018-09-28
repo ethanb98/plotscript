@@ -457,8 +457,9 @@ Expression rest(const std::vector<Expression> & args) {
 			if (args[0].tailConstBegin() != args[0].tailConstEnd()) {
 				auto e = args[0].tailConstBegin();
 				e++;
-				for (e; e != args[0].tailConstEnd(); e++) {
+				while (e != args[0].tailConstEnd()) {
 					result.push_back(Expression(*e));
+					e++;
 				}
 				return Expression(result);
 			}
@@ -550,8 +551,9 @@ Expression range(const std::vector<Expression> & args) {
 			double g = args[2].head().asNumber();
 			if( g > 0 ) {
 				if (e < f) {
-					for (e; e <= f; e = e + g) {
+					while (e <= f) {
 						result.push_back(Expression(e));
+						e += g;
 					}
 					return Expression(result);
 				}

@@ -159,7 +159,7 @@ std::string Atom::asSymbol() const noexcept{
 }
 
 std::complex<double> Atom::asComplex() const noexcept{
-	return (m_type == ComplexKind) ? complexValue : (0.0,0.0);
+	return (m_type == ComplexKind) ? complexValue : (0.0);
 }
 
 
