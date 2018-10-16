@@ -82,6 +82,10 @@ bool Expression::isHeadLambda() const noexcept {
 	return m_head.isLambda();
 }
 
+bool Expression::isHeadString() const noexcept {
+	return m_head.isString();
+}
+
 void Expression::append(const Atom & a){
   m_tail.emplace_back(a);
 }
@@ -165,6 +169,9 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
 	else if (head.isComplex()) {
 	  return Expression(head);
 	}
+	else if (head.isString()) {
+		return Expression(head);
+	}
     else{
       throw SemanticError("Error during evaluation: Invalid type in terminal expression");
     }
@@ -204,6 +211,10 @@ Expression Expression::handle_define(Environment & env){
     throw SemanticError("Error during evaluation: attempt to redefine a special-form");
   }
   
+  if ((s == "e") || (s == "I") || (s == "pi")) {
+	  throw SemanticError("Error during evaluation: attempt to define a expression");
+  }
+
   if(env.is_proc(m_head)){
     throw SemanticError("Error during evaluation: attempt to redefine a built-in procedure");
   }
@@ -211,10 +222,10 @@ Expression Expression::handle_define(Environment & env){
   // eval tail[1]
   Expression result = m_tail[1].eval(env);
 
-  if(env.is_exp(m_head)){
+  /*if(env.is_exp(m_head)){
     throw SemanticError("Error during evaluation: attempt to redefine a previously defined symbol");
-  }
-    
+  }*/
+      
   //and add to env
   env.add_exp(m_tail[0].head(), result);
   
