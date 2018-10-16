@@ -66,7 +66,7 @@ TokenSequenceType tokenize(std::istream & seq){
 		token.push_back(c);
 		c = seq.get();
 
-		while (c != QUOTES) {
+		while (c != QUOTES && !seq.eof()) {
 			token.push_back(c);
 			c = seq.get();
 		}
