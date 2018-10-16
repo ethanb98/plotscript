@@ -23,6 +23,11 @@ Atom::Atom(const Token & token): Atom(){
       setNumber(temp);
     }
   }
+  // else if it is not a digit, and begins with quotes "
+  else if (!std::isdigit(token.asString()[0]) && (token.asString()[0] == '"')) {
+	  // Set it as a string
+	  setString(token.asString());
+  }
   else{ // else assume symbol
     // make sure does not start with number
     if(!std::isdigit(token.asString()[0])){
@@ -32,8 +37,12 @@ Atom::Atom(const Token & token): Atom(){
 }
 
 Atom::Atom(const std::string & value): Atom() {
-  
-  setSymbol(value);
+	if (value[0] == '"') {
+		setString(value);
+	 }
+	else {
+		setSymbol(value);
+	}
 }
 
 Atom::Atom(std::complex<double> value)
@@ -50,6 +59,9 @@ Atom::Atom(const Atom & x): Atom(){
   }
   else if (x.isComplex()) {
 	  setComplex(x.complexValue);
+  }
+  else if (x.isString()) {
+	  setString(x.stringValue);
   }
 }
 
@@ -74,6 +86,9 @@ Atom & Atom::operator=(const Atom & x){
 	else if (x.m_type == LambdaKind) {
 		setLambda();
 	}
+	else if (x.m_type == StringKind) {
+		setString(x.stringValue);
+	}
   }
   return *this;
 }
@@ -81,7 +96,7 @@ Atom & Atom::operator=(const Atom & x){
 Atom::~Atom(){
 
   // we need to ensure the destructor of the symbol string is called
-  if(m_type == SymbolKind){
+  if(m_type == SymbolKind || m_type == StringKind){
     stringValue.~basic_string();
   }
 }
@@ -108,6 +123,10 @@ bool Atom::isList() const noexcept {
 
 bool Atom::isLambda() const noexcept {
 	return m_type == LambdaKind;
+}
+
+bool Atom::isString() const noexcept {
+	return m_type == StringKind;
 }
 
 void Atom::setNumber(double value){
@@ -142,6 +161,17 @@ void Atom::setLambda() {
 	m_type = LambdaKind;
 }
 
+void Atom::setString(const std::string & value) {
+	// we need to ensure the destructor of the symbol string is called
+	if (m_type == StringKind) {
+		stringValue.~basic_string();
+	}
+	m_type = StringKind;
+
+	// copy construct in place
+	new (&stringValue) std::string(value);
+}
+
 double Atom::asNumber() const noexcept{
 
   return (m_type == NumberKind) ? numberValue : 0.0;  
@@ -162,6 +192,15 @@ std::complex<double> Atom::asComplex() const noexcept{
 	return (m_type == ComplexKind) ? complexValue : (0.0);
 }
 
+std::string Atom::asString() const noexcept {
+	std::string result;
+
+	if (m_type == StringKind) {
+		result = stringValue;
+	}
+
+	return result;
+}
 
 bool Atom::operator==(const Atom & right) const noexcept{
   
@@ -208,6 +247,12 @@ bool Atom::operator==(const Atom & right) const noexcept{
 	  if (right.m_type != LambdaKind) return false;
   }
   break;
+  case StringKind:
+  {
+	  if (right.m_type != StringKind) return false;
+	  return stringValue == right.stringValue;
+  }
+  break;
   default:
     return false;
   }
@@ -231,6 +276,9 @@ std::ostream & operator<<(std::ostream & out, const Atom & a){
   }
   if (a.isComplex()) {
 	out << a.asComplex();
+  }
+  if (a.isString()) {
+	  out << a.asString();
   }
   return out;
 }
