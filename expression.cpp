@@ -10,13 +10,12 @@
 
 Expression::Expression(){}
 
-Expression::Expression(const Atom & a){
-
+Expression::Expression(const Atom & a) {
   m_head = a;
 }
 
 // recursive copy
-Expression::Expression(const Expression & a){
+Expression::Expression(const Expression & a) {
 
   m_head = a.m_head;
   for(auto e : a.m_tail){
@@ -393,6 +392,41 @@ Expression Expression::handle_map(Environment & env) {
 	return Expression(result);
 }
 
+// Sets the property as the value and key
+Expression Expression::handle_set(Environment & env) {
+	Expression exp = m_tail[2].eval(env);
+
+	// lambda tail must be of size 2
+	if (m_tail.size() != 3) {
+		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
+	}
+	// tail[0] must be a string
+	if (!m_tail[0].isHeadString()) {
+		throw SemanticError("Error during evaluation: first argument to set-property not a string");
+	}
+	
+	exp.propmap[m_tail[0].head().asString()] = m_tail[1].eval(env);
+
+	return exp;
+}
+
+// returns the definition of the property
+Expression Expression::handle_get(Environment & env) {
+	// lambda tail must be of size 2
+	if (m_tail.size() != 2) {
+		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
+	}
+	// tail[0] must be a string
+	if (!m_tail[0].isHeadString()) {
+		throw SemanticError("Error during evaluation: first argument to set-property not a string");
+	}
+	// If the key doesn't exist, return expression type NONE
+	//if(m_tail[0] != propmap.)
+
+	return m_tail[1].eval(env).propmap[m_tail[0].head().asString()];
+}
+
+
 // this is a simple recursive version. the iterative version is more
 // difficult with the last data structure used (no parent pointer).
 // this limits the practical depth of our AST
@@ -423,6 +457,12 @@ Expression Expression::eval(Environment & env){
 	else if (m_head.isSymbol() && m_head.asSymbol() == "map") {
 		return handle_map(env);
 	}
+	else if (m_head.isSymbol() && m_head.asSymbol() == "set-property") {
+		return handle_set(env);
+	}
+	else if (m_head.isSymbol() && m_head.asSymbol() == "get-property") {
+		return handle_get(env);
+	}
 	// else attempt to treat as procedure
 	else{ 
 		std::vector<Expression> results;
@@ -432,7 +472,6 @@ Expression Expression::eval(Environment & env){
 		return apply(m_head, results, env);
 	}
 }
-
 
 std::ostream & operator<<(std::ostream & out, const Expression & exp){
 	Environment env;

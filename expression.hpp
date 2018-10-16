@@ -6,6 +6,7 @@ Defines the Expression type and assiciated functions.
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "token.hpp"
 #include "atom.hpp"
@@ -95,6 +96,9 @@ private:
   // and cache coherence, at the cost of wasted memory.
   std::vector<Expression> m_tail;
 
+  // the property map
+  std::map<std::string, Expression> propmap;
+
   // convenience typedef
   typedef std::vector<Expression>::iterator IteratorType;
   typedef std::vector<Expression>::iterator ListType;
@@ -106,6 +110,8 @@ private:
   Expression handle_lambda(Environment & env);
   Expression handle_apply(Environment & env);
   Expression handle_map(Environment & env);
+  Expression handle_set(Environment & env);
+  Expression handle_get(Environment & env);
 };
 
 /// Render expression to output stream
