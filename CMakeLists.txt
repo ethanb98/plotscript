@@ -167,3 +167,9 @@ else (DOXYGEN_FOUND)
   message("Doxygen need to be installed to generate the doxygen documentation")
 endif (DOXYGEN_FOUND)
 
+# ---------------------------------------------------
+# Creates the startup definitions
+# ---------------------------------------------------
+set(STARTUP_FILE ${CMAKE_SOURCE_DIR}/startup.pls)
+configure_file(${CMAKE_SOURCE_DIR}/startup_config.hpp.in ${CMAKE_BINARY_DIR}/startup_config.hpp)
+include_directories(${CMAKE_BINARY_DIR})
