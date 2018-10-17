@@ -18,6 +18,7 @@ Expression::Expression(const Atom & a) {
 Expression::Expression(const Expression & a) {
 
   m_head = a.m_head;
+  propmap = a.propmap;
   for(auto e : a.m_tail){
     m_tail.push_back(e);
   }
@@ -44,6 +45,7 @@ Expression & Expression::operator=(const Expression & a){
   // prevent self-assignment
   if(this != &a){
     m_head = a.m_head;
+	propmap = a.propmap;
     m_tail.clear();
     for(auto e : a.m_tail){
       m_tail.push_back(e);
@@ -394,8 +396,6 @@ Expression Expression::handle_map(Environment & env) {
 
 // Sets the property as the value and key
 Expression Expression::handle_set(Environment & env) {
-	Expression exp = m_tail[2].eval(env);
-
 	// lambda tail must be of size 2
 	if (m_tail.size() != 3) {
 		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
@@ -405,7 +405,11 @@ Expression Expression::handle_set(Environment & env) {
 		throw SemanticError("Error during evaluation: first argument to set-property not a string");
 	}
 	
-	exp.propmap[m_tail[0].head().asString()] = m_tail[1].eval(env);
+	Expression exp = m_tail[2].eval(env);
+	std::string key = m_tail[0].head().asString();
+	Expression eval = m_tail[1].eval(env);
+
+	exp.propmap[key] = eval;
 
 	return exp;
 }
@@ -422,8 +426,12 @@ Expression Expression::handle_get(Environment & env) {
 	}
 	// If the key doesn't exist, return expression type NONE
 	//if(m_tail[0] != propmap.)
+	
+	Expression exp = m_tail[1].eval(env);
+	std::string key = m_tail[0].head().asString();
 
-	return m_tail[1].eval(env).propmap[m_tail[0].head().asString()];
+
+	return exp.propmap[key];
 }
 
 
@@ -475,29 +483,35 @@ Expression Expression::eval(Environment & env){
 
 std::ostream & operator<<(std::ostream & out, const Expression & exp){
 	Environment env;
-	if (!exp.isHeadComplex()) {
-		out << "(";
-	}
-	// If the expression head is a procedure and is not lambda, add a space to output
-	if (env.is_proc(exp.head()) && exp.isHeadSymbol() && (exp.head().asSymbol() != "lambda")) {
-		out << exp.head();
-		out << " ";
+	if (!exp.isHeadList() && exp.head().isNone()) {
+		out << "NONE";
 	}
 	else {
-		out << exp.head();
-	}
+		if (!exp.isHeadComplex()) {
+			out << "(";
+		}
 
-  for(auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e){
-	out << *e;
-	// add correct spacing for lists and lambda
-	if ((e+1) != exp.tailConstEnd()) {
-		out << " ";
-	}
-  }
+		// If the expression head is a procedure and is not lambda, add a space to output
+		if (env.is_proc(exp.head()) && exp.isHeadSymbol() && (exp.head().asSymbol() != "lambda")) {
+			out << exp.head();
+			out << " ";
+		}
+		else {
+			out << exp.head();
+		}
 
-  if (!exp.isHeadComplex()) {
-	  out << ")";
-  }
+		for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e) {
+			out << *e;
+			// add correct spacing for lists and lambda
+			if ((e + 1) != exp.tailConstEnd()) {
+				out << " ";
+			}
+		}
+
+		if (!exp.isHeadComplex()) {
+			out << ")";
+		}
+	}
   return out;
 }
 
