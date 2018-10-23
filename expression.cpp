@@ -430,7 +430,6 @@ Expression Expression::handle_get(Environment & env) {
 	Expression exp = m_tail[1].eval(env);
 	std::string key = m_tail[0].head().asString();
 
-
 	return exp.propmap[key];
 }
 

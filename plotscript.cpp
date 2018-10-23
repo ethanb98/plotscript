@@ -27,9 +27,6 @@ void info(const std::string & err_str){
 }
 
 int eval_from_stream(std::istream & stream, Interpreter interp){
-
-  //Interpreter interp;
-  
   if(!interp.parseStream(stream)){
     error("Invalid Program. Could not parse.");
     return EXIT_FAILURE;
@@ -68,8 +65,6 @@ int eval_from_command(std::string argexp, Interpreter interp){
 
 // A REPL is a repeated read-eval-print loop
 void repl(Interpreter interp){
-  //Interpreter interp;
-    
   while(!std::cin.eof()){
     
     prompt();
@@ -96,8 +91,6 @@ void repl(Interpreter interp){
 
 int main(int argc, char *argv[])
 {
-	//eval_from_file(STARTUP_FILE);
-
 	Interpreter interp;
 	std::ifstream ifs(STARTUP_FILE);
 	if (!interp.parseStream(ifs)) {
