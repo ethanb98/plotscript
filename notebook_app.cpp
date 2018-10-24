@@ -6,7 +6,7 @@
 #include "notebook_app.hpp"
 
 NotebookApp::NotebookApp(QWidget * parent) : QWidget(parent) {
-	setObjectName("notebook");
+	//setObjectName("notebook");
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(&input, 1);
 	layout->addWidget(&output, 1);
