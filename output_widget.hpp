@@ -22,7 +22,6 @@ class OutputWidget : public QWidget {
 public:
 	OutputWidget(QWidget * parent = nullptr);
 	// Put this into Expression.cpp and run everything through there
-	std::string transferString();
 
 private slots:
 	void receiveString(QString str);
@@ -31,5 +30,6 @@ private:
 	QGraphicsView * childView = new QGraphicsView(this);
 	QGraphicsScene * childScene = new QGraphicsScene(this);
 	Interpreter interp;
+	bool clearScreen = true;
 };
 #endif

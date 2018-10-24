@@ -514,6 +514,38 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
   return out;
 }
 
+std::string transferString() {
+	Environment env;
+	Expression exp;
+	std::string text = "";
+	/*if (!exp.isHeadList() && exp.head().isNone()) {
+	}
+	else {*/
+		if (!exp.isHeadComplex()) {
+
+		}
+
+		// If the expression head is a procedure and is not lambda, add a space to output
+		if (env.is_proc(exp.head()) && exp.isHeadSymbol() && (exp.head().asSymbol() != "lambda")) {
+		}
+		else {
+		}
+
+		for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e) {
+			// add correct spacing for lists and lambda
+			if ((e + 1) != exp.tailConstEnd()) {
+			}
+		}
+
+		if (!exp.isHeadComplex()) {
+		}
+	//}
+	return text;
+
+
+}
+
+
 bool Expression::operator==(const Expression & exp) const noexcept{
 
   bool result = (m_head == exp.m_head);
