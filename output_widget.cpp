@@ -27,9 +27,11 @@ void OutputWidget::receiveString(QString str) {
 	if (clearScreen == true) {
 		childScene->clear();
 	}
-	std::istringstream iss(str.toStdString());
+	std::string text = str.toStdString();
+	std::istringstream iss(/*str.toStdString()*/text);
 	if (!interp.parseStream(iss)) { 
-		childScene->addText(QString("Error: Invalid, could not parse"));
+		QString error = "Error: Invalid, could not parse";
+		childScene->addText(/*QString("Error: Invalid, could not parse")*/error);
 	}
 	else {
 		try {
@@ -42,7 +44,8 @@ void OutputWidget::receiveString(QString str) {
 			childScene->addText(QString());
 		}
 		catch (const SemanticError & ex) {
-			QString error = QString(ex.what());
+			
+			QString error = QString::fromStdString(ex.what());
 			childScene->addText(error);
 		}
 	}

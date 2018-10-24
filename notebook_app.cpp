@@ -14,6 +14,5 @@ NotebookApp::NotebookApp(QWidget * parent) : QWidget(parent) {
 
 	QObject::connect(&input, SIGNAL(sendString(QString)), &output, SLOT(receiveString(QString)));
 
-
 }
 
