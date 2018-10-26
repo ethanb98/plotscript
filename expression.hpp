@@ -88,8 +88,7 @@ public:
   bool operator==(const Expression & exp) const noexcept;
 
   std::string transferString() const noexcept;
-
-  
+    
 private:
 
   // the head of the expression

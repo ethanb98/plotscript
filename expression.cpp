@@ -517,6 +517,7 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
 std::string Expression::transferString() const noexcept{
 	Environment env;
 	std::string text;
+
 	if (!this->isHeadList() && this->head().isNone()) {
 		text += "NONE";
 	}

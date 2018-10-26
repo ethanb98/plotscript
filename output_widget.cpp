@@ -38,7 +38,13 @@ void OutputWidget::receiveString(QString str) {
 			if (exp.isHeadList()) {
 				clearScreen = false;
 			}
-			childScene->addText(QString::fromStdString(exp.transferString()));
+			else if (exp.head().isLambda()) {
+				childScene->clear();
+				childScene->addText(QString(""));
+			}
+			else {
+				childScene->addText(QString::fromStdString(exp.transferString()));
+			}
 		}
 		catch (const SemanticError & ex) {
 			
