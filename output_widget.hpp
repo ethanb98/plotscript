@@ -15,6 +15,7 @@
 #include "startup_config.hpp"
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
+#include "expression.hpp"
 
 
 class OutputWidget : public QWidget {

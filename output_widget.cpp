@@ -27,11 +27,9 @@ void OutputWidget::receiveString(QString str) {
 	if (clearScreen == true) {
 		childScene->clear();
 	}
-	std::string text = str.toStdString();
-	std::istringstream iss(/*str.toStdString()*/text);
+	std::istringstream iss(str.toStdString());
 	if (!interp.parseStream(iss)) { 
-		QString error = "Error: Invalid, could not parse";
-		childScene->addText(/*QString("Error: Invalid, could not parse")*/error);
+		childScene->addText(QString("Error: Invalid, could not parse"));
 	}
 	else {
 		try {
@@ -40,8 +38,7 @@ void OutputWidget::receiveString(QString str) {
 			if (exp.isHeadList()) {
 				clearScreen = false;
 			}
-			//std::string text = exp.transferString();
-			childScene->addText(QString());
+			childScene->addText(QString::fromStdString(exp.transferString()));
 		}
 		catch (const SemanticError & ex) {
 			
