@@ -194,11 +194,18 @@ std::complex<double> Atom::asComplex() const noexcept{
 
 std::string Atom::asString() const noexcept {
 	std::string result;
+	std::ostringstream ostring;
 
 	if (m_type == StringKind) {
-		result = stringValue;
+		ostring << stringValue;
 	}
-
+	else if (m_type == ComplexKind) {
+		ostring << complexValue;
+	}
+	else if (m_type == NumberKind) {
+		ostring << numberValue;
+	}
+	result = ostring.str();
 	return result;
 }
 
