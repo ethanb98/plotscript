@@ -86,6 +86,9 @@ public:
 
   /// equality comparison for two expressions (recursive)
   bool operator==(const Expression & exp) const noexcept;
+
+  std::string transferString() const noexcept;
+
   
 private:
 
@@ -113,7 +116,6 @@ private:
   Expression handle_set(Environment & env);
   Expression handle_get(Environment & env);
 
-  std::string transferString();
 
 };
 

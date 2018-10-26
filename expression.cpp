@@ -514,35 +514,39 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
   return out;
 }
 
-std::string transferString() {
+std::string Expression::transferString() const noexcept{
 	Environment env;
-	Expression exp;
-	std::string text = "";
-	/*if (!exp.isHeadList() && exp.head().isNone()) {
+	std::string text;
+	if (!this->isHeadList() && this->head().isNone()) {
+		text += "NONE";
 	}
-	else {*/
-		if (!exp.isHeadComplex()) {
-
+	else {
+		if (!this->isHeadComplex()) {
+			text += "(";
 		}
 
 		// If the expression head is a procedure and is not lambda, add a space to output
-		if (env.is_proc(exp.head()) && exp.isHeadSymbol() && (exp.head().asSymbol() != "lambda")) {
+		if (env.is_proc(this->head()) && this->isHeadSymbol() && (this->head().asSymbol() != "lambda")) {
+			text += this->head().asString();
+			text += " ";
 		}
 		else {
-		}
+			text += this->head().asString();
+		} 
 
-		for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e) {
+		for (auto e = this->tailConstBegin(); e != this->tailConstEnd(); ++e) {
 			// add correct spacing for lists and lambda
-			if ((e + 1) != exp.tailConstEnd()) {
+			text += (*e).transferString();
+			if ((e + 1) != this->tailConstEnd()) {
+				text += " ";
 			}
 		}
 
-		if (!exp.isHeadComplex()) {
+		if (!this->isHeadComplex()) {
+			text += ")";
 		}
-	//}
+	}
 	return text;
-
-
 }
 
 
