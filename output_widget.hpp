@@ -22,8 +22,7 @@ class OutputWidget : public QWidget {
 	Q_OBJECT
 public:
 	OutputWidget(QWidget * parent = nullptr);
-	// Put this into Expression.cpp and run everything through there
-
+	void listCap(Expression exp);
 private slots:
 	void receiveString(QString str);
 

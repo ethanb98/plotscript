@@ -550,62 +550,82 @@ std::string Expression::transferString() const noexcept{
 	return text;
 }
 
-bool Expression::isPoint() {
-	if (propmap["\"object-name\""].head().asString() == "\"point\"") {
+bool Expression::isPoint() const noexcept {
+	Expression exp(Atom("\"point\""));
+	std::cout << "in point" << std::endl;
+	for (auto &e : propmap) {
+		std::cout << "This works" << std::endl;
+		if (e.first == "\"object-name\"") {
+			std::cout << "entered first" << std::endl;
+			if (e.second == exp) {
+				std::cout << "entered second" << std::endl;
+				return true;
+			}
+		}
+		/*if (propmap.at("\"object-name\"") == exp) {
+			return true;
+		}*/
+
+	}
+	/*if (propmap.find("\"object-name\"") != propmap.end()) {
+	}*/
+	std::cout << "return false" << std:: endl;
+	return false;
+}
+
+bool Expression::isLine() const noexcept{
+	Expression exp(Atom("\"line\""));
+	if ((propmap.find("\"object-name\"") != propmap.end()) && propmap.at("\"object-name\"") == exp) {
 		return true;
 	}
 	return false;
 }
 
-bool Expression::isLine() {
-	if (propmap["\"object-name\""].head().asString() == "\"line\"") {
+bool Expression::isText() const noexcept{
+	Expression exp(Atom("\"text\""));
+	if ((propmap.find("\"object-name\"") != propmap.end()) && propmap.at("\"object-name\"") == exp) {
 		return true;
 	}
 	return false;
 }
 
-bool Expression::isText() {
-	if (propmap["\"object-name\""].head().asString() == "\"text\"") {
-		return true;
-	}
-	return false;
-}
-
-double Expression::pointTail0() {
+double Expression::pointTail0() const noexcept{
 	return m_tail[0].head().asNumber();
 }
 
-double Expression::pointTail1() {
+double Expression::pointTail1() const noexcept{
 	return m_tail[1].head().asNumber();
 }
 
-double Expression::req() {
-	if (propmap["\"object-name\""].head().asString() == "\"point\"") {
-		return propmap["\"size\""].head().asNumber();
+double Expression::req() const noexcept {
+	Expression point(Atom("\"point\""));
+	Expression line(Atom("\"line\""));
+	if ((propmap.find("\"object-name\"") != propmap.end()) && propmap.at("\"object-name\"") == point) {
+		return propmap.at("\"size\"").head().asNumber();
 	}
-	else if (propmap["\"object-name\""].head().asString() == "\"line\"") {
-		return propmap["\"thickness\""].head().asNumber();
+	if ((propmap.find("\"object-name\"") != propmap.end()) && propmap.at("\"object-name\"") == line) {
+		return propmap.at("\"thickness\"").head().asNumber();
 	}
 	return 0;
 }
 
-Expression Expression::textReq() {
-		return propmap["\"position\""];
+Expression Expression::textReq() const noexcept{
+		return propmap.at("\"position\"");
 }
 
-double Expression::lineTail0x() {
+double Expression::lineTail0x() const noexcept {
 	return m_tail[0].m_tail[0].head().asNumber();
 }
 
-double Expression::lineTail0y() {
+double Expression::lineTail0y() const noexcept {
 	return m_tail[0].m_tail[1].head().asNumber();
 }
 
-double Expression::lineTail1x() {
+double Expression::lineTail1x() const noexcept {
 	return m_tail[1].m_tail[0].head().asNumber();
 }
 
-double Expression::lineTail1y() {
+double Expression::lineTail1y() const noexcept {
 	return m_tail[1].m_tail[1].head().asNumber();
 }
 

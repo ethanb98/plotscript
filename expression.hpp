@@ -89,18 +89,18 @@ public:
 
   std::string transferString() const noexcept;
   
-  bool isPoint();
-  bool isLine();
-  bool isText();
+  bool isPoint() const noexcept;
+  bool isLine() const noexcept;
+  bool isText() const noexcept;
 
-  double pointTail0();
-  double pointTail1();
-  double req();
-  Expression textReq();
-  double lineTail0x();
-  double lineTail0y();
-  double lineTail1x();
-  double lineTail1y();
+  double pointTail0() const noexcept;
+  double pointTail1() const noexcept;
+  double req() const noexcept;
+  Expression textReq() const noexcept;
+  double lineTail0x() const noexcept;
+  double lineTail0y() const noexcept;
+  double lineTail1x() const noexcept;
+  double lineTail1y() const noexcept;
 
 private:
 
