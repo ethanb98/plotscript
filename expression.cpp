@@ -552,13 +552,9 @@ std::string Expression::transferString() const noexcept{
 
 bool Expression::isPoint() const noexcept {
 	Expression exp(Atom("\"point\""));
-	std::cout << "in point" << std::endl;
 	for (auto &e : propmap) {
-		std::cout << "This works" << std::endl;
 		if (e.first == "\"object-name\"") {
-			std::cout << "entered first" << std::endl;
 			if (e.second == exp) {
-				std::cout << "entered second" << std::endl;
 				return true;
 			}
 		}
@@ -569,7 +565,6 @@ bool Expression::isPoint() const noexcept {
 	}
 	/*if (propmap.find("\"object-name\"") != propmap.end()) {
 	}*/
-	std::cout << "return false" << std:: endl;
 	return false;
 }
 

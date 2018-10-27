@@ -72,10 +72,8 @@ void OutputWidget::receiveString(QString str) {
 
 void OutputWidget::listCap(Expression exp) {
 	clearScreen = false;
-	std::cout << "Enter" << std::endl;
 	if (exp.isPoint()) {
 		childScene->clear();
-		std::cout << "point" << std::endl;
 		double size = exp.req();
 		double x = (exp.pointTail0() - (size / 2));
 		double y = (exp.pointTail1() - (size / 2));
@@ -97,10 +95,7 @@ void OutputWidget::listCap(Expression exp) {
 	else {
 		childScene->clear();
 		for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
-			std::cout << "for" << std::endl;
-			std::cout << *e << std::endl;
 			if ((*e).isPoint()) {
-				std::cout << "point" << std::endl;
 				double size = (*e).req();
 				double x = ((*e).pointTail0() - (size / 2));
 				double y = ((*e).pointTail1() - (size / 2));
