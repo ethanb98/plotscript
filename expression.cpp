@@ -522,7 +522,7 @@ std::string Expression::transferString() const noexcept{
 		text += "NONE";
 	}
 	else {
-		if (!this->isHeadComplex() || !this->isHeadList()) {
+		if (!this->isHeadComplex() && !this->isHeadList() && !this->isHeadString()) {
 			text += "(";
 		}
 
@@ -543,7 +543,7 @@ std::string Expression::transferString() const noexcept{
 			}
 		}
 
-		if (!this->isHeadComplex() || !this->isHeadList()) {
+		if (!this->isHeadComplex() && !this->isHeadList() && !this->isHeadString()) {
 			text += ")";
 		}
 	}
@@ -571,11 +571,11 @@ bool Expression::isText() {
 	return false;
 }
 
-double Expression::tail0() {
+double Expression::pointTail0() {
 	return m_tail[0].head().asNumber();
 }
 
-double Expression::tail1() {
+double Expression::pointTail1() {
 	return m_tail[1].head().asNumber();
 }
 
@@ -586,10 +586,27 @@ double Expression::req() {
 	else if (propmap["\"object-name\""].head().asString() == "\"line\"") {
 		return propmap["\"thickness\""].head().asNumber();
 	}
-	/*else if (propmap["\"object-name\""].head().asString() == "\"text\"") {
-	return propmap["\"position\""].head.asNumber();
-	}*/
 	return 0;
+}
+
+Expression Expression::textReq() {
+		return propmap["\"position\""];
+}
+
+double Expression::lineTail0x() {
+	return m_tail[0].m_tail[0].head().asNumber();
+}
+
+double Expression::lineTail0y() {
+	return m_tail[0].m_tail[1].head().asNumber();
+}
+
+double Expression::lineTail1x() {
+	return m_tail[1].m_tail[0].head().asNumber();
+}
+
+double Expression::lineTail1y() {
+	return m_tail[1].m_tail[1].head().asNumber();
 }
 
 bool Expression::operator==(const Expression & exp) const noexcept{

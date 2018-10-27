@@ -39,39 +39,49 @@ void OutputWidget::receiveString(QString str) {
 				childScene->clear();
 			}
 			else if (exp.isHeadList()) {
+				//std::cout << "IM HERE" << std::endl;
 				clearScreen = false;
 				if (exp.isPoint()) {
-					for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
+					childScene->clear();
 						double size = exp.req();
-						double x = (exp.tail0() - (size / 2));
-						double y = (exp.tail1() - (size / 2));
+						double x = (exp.pointTail0() - (size / 2));
+						double y = (exp.pointTail1() - (size / 2));
 						QPen pen = QPen(Qt::black);
 						QBrush brush = QBrush(Qt::black);
 						childScene->QGraphicsScene::addEllipse(x, y, size, size, pen, brush);
-					}
 				}
 				else if (exp.isLine()) {
+					childScene->clear();
 					double thicc = exp.req();
-					double x = (exp.tail0() - (thicc / 2));
-					double y = (exp.tail1() - (thicc / 2));
+					double x1 = exp.lineTail0x();
+					double x2 = exp.lineTail1x();
+					double y1 = exp.lineTail0y();
+					double y2 = exp.lineTail1y();
 					QPen pen = QPen(Qt::black);
-					QBrush brush = QBrush(Qt::black);
-					childScene->QGraphicsScene::addEllipse(x, y, thicc, thicc, pen, brush);
-
+					pen.setWidth(thicc);
+					childScene->QGraphicsScene::addLine(x1, y1, x2, y2, pen);
 				}
-				/*else if (exp.isText()) {
-
-				}*/
 				/*for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
 					childScene->addText(QString::fromStdString((*e).transferString()));
 				}*/
 			}
 			else {
-				childScene->addText(QString::fromStdString(exp.transferString()));
+				//std::cout << "Now Im Here" << std::endl;
+				if (exp.isText()) {
+					Expression newExp = exp.textReq();
+					double x = newExp.pointTail0();
+					double y = newExp.pointTail1();
+
+					QString text = QString::fromStdString(exp.transferString().substr(1, (exp.transferString().length()-2)));
+					QGraphicsTextItem *childText = childScene->addText(text);
+					childText->setPos(x, y);
+				}
+				else {
+					childScene->addText(QString::fromStdString(exp.transferString()));
+				}
 			}
 		}
 		catch (const SemanticError & ex) {
-			
 			QString error = QString::fromStdString(ex.what());
 			childScene->addText(error);
 		}

@@ -93,9 +93,14 @@ public:
   bool isLine();
   bool isText();
 
-  double tail0();
-  double tail1();
+  double pointTail0();
+  double pointTail1();
   double req();
+  Expression textReq();
+  double lineTail0x();
+  double lineTail0y();
+  double lineTail1x();
+  double lineTail1y();
 
 private:
 
