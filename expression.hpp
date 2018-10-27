@@ -88,7 +88,15 @@ public:
   bool operator==(const Expression & exp) const noexcept;
 
   std::string transferString() const noexcept;
-    
+  
+  bool isPoint();
+  bool isLine();
+  bool isText();
+
+  double tail0();
+  double tail1();
+  double req();
+
 private:
 
   // the head of the expression

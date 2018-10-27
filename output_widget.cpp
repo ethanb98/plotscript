@@ -35,12 +35,36 @@ void OutputWidget::receiveString(QString str) {
 		try {
 			Expression exp = interp.evaluate();
 			// If a list, do not clear screen and recursively collect information
-			if (exp.isHeadList()) {
-				clearScreen = false;
-			}
-			else if (exp.head().isLambda()) {
+			if (exp.head().isLambda()) {
 				childScene->clear();
-				childScene->addText(QString(""));
+			}
+			else if (exp.isHeadList()) {
+				clearScreen = false;
+				if (exp.isPoint()) {
+					for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
+						double size = exp.req();
+						double x = (exp.tail0() - (size / 2));
+						double y = (exp.tail1() - (size / 2));
+						QPen pen = QPen(Qt::black);
+						QBrush brush = QBrush(Qt::black);
+						childScene->QGraphicsScene::addEllipse(x, y, size, size, pen, brush);
+					}
+				}
+				else if (exp.isLine()) {
+					double thicc = exp.req();
+					double x = (exp.tail0() - (thicc / 2));
+					double y = (exp.tail1() - (thicc / 2));
+					QPen pen = QPen(Qt::black);
+					QBrush brush = QBrush(Qt::black);
+					childScene->QGraphicsScene::addEllipse(x, y, thicc, thicc, pen, brush);
+
+				}
+				/*else if (exp.isText()) {
+
+				}*/
+				/*for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
+					childScene->addText(QString::fromStdString((*e).transferString()));
+				}*/
 			}
 			else {
 				childScene->addText(QString::fromStdString(exp.transferString()));

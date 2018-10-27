@@ -522,7 +522,7 @@ std::string Expression::transferString() const noexcept{
 		text += "NONE";
 	}
 	else {
-		if (!this->isHeadComplex()) {
+		if (!this->isHeadComplex() || !this->isHeadList()) {
 			text += "(";
 		}
 
@@ -543,13 +543,54 @@ std::string Expression::transferString() const noexcept{
 			}
 		}
 
-		if (!this->isHeadComplex()) {
+		if (!this->isHeadComplex() || !this->isHeadList()) {
 			text += ")";
 		}
 	}
 	return text;
 }
 
+bool Expression::isPoint() {
+	if (propmap["\"object-name\""].head().asString() == "\"point\"") {
+		return true;
+	}
+	return false;
+}
+
+bool Expression::isLine() {
+	if (propmap["\"object-name\""].head().asString() == "\"line\"") {
+		return true;
+	}
+	return false;
+}
+
+bool Expression::isText() {
+	if (propmap["\"object-name\""].head().asString() == "\"text\"") {
+		return true;
+	}
+	return false;
+}
+
+double Expression::tail0() {
+	return m_tail[0].head().asNumber();
+}
+
+double Expression::tail1() {
+	return m_tail[1].head().asNumber();
+}
+
+double Expression::req() {
+	if (propmap["\"object-name\""].head().asString() == "\"point\"") {
+		return propmap["\"size\""].head().asNumber();
+	}
+	else if (propmap["\"object-name\""].head().asString() == "\"line\"") {
+		return propmap["\"thickness\""].head().asNumber();
+	}
+	/*else if (propmap["\"object-name\""].head().asString() == "\"text\"") {
+	return propmap["\"position\""].head.asNumber();
+	}*/
+	return 0;
+}
 
 bool Expression::operator==(const Expression & exp) const noexcept{
 
