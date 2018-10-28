@@ -117,7 +117,7 @@ void OutputWidget::listCap(Expression exp) {
 				double x = newExp.pointTail0();
 				double y = newExp.pointTail1();
 
-				QString text = QString::fromStdString((*e).transferString().substr(1, ((*e).transferString().length() - 2)));
+				QString text = QString::fromStdString((*e).transferString().substr(2, ((*e).transferString().length() - 4)));
 				QGraphicsTextItem *childText = childScene->addText(text);
 				childText->setPos(x, y);
 			}
