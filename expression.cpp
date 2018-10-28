@@ -36,7 +36,6 @@ Expression::Expression(const Atom & a, const std::vector<Expression> & exp) {
 	for (auto e : exp) {
 		m_tail.push_back(e);
 	}
-
 }
 
 // Tests equality to one another
@@ -522,7 +521,7 @@ std::string Expression::transferString() const noexcept{
 		text += "NONE";
 	}
 	else {
-		if (!this->isHeadComplex() && !this->isHeadList() && !this->isHeadString()) {
+		if (!this->isHeadComplex() && !this->isHeadList()) {
 			text += "(";
 		}
 
@@ -543,7 +542,7 @@ std::string Expression::transferString() const noexcept{
 			}
 		}
 
-		if (!this->isHeadComplex() && !this->isHeadList() && !this->isHeadString()) {
+		if (!this->isHeadComplex() && !this->isHeadList()) {
 			text += ")";
 		}
 	}
@@ -558,13 +557,7 @@ bool Expression::isPoint() const noexcept {
 				return true;
 			}
 		}
-		/*if (propmap.at("\"object-name\"") == exp) {
-			return true;
-		}*/
-
 	}
-	/*if (propmap.find("\"object-name\"") != propmap.end()) {
-	}*/
 	return false;
 }
 

@@ -41,9 +41,6 @@ void OutputWidget::receiveString(QString str) {
 			}
 			else if (exp.head().isList()) {
 				listCap(exp);
-				/*for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
-					childScene->addText(QString::fromStdString((*e).transferString()));
-				}*/
 			}
 			else {
 				if (exp.isText()) {
@@ -52,7 +49,7 @@ void OutputWidget::receiveString(QString str) {
 					double x = newExp.pointTail0();
 					double y = newExp.pointTail1();
 
-					QString text = QString::fromStdString(exp.transferString().substr(1, (exp.transferString().length() - 2)));
+					QString text = QString::fromStdString(exp.transferString().substr(2, (exp.transferString().length() - 4)));
 					QGraphicsTextItem *childText = childScene->addText(text);
 					childText->setPos(x, y);
 				}
@@ -85,8 +82,8 @@ void OutputWidget::listCap(Expression exp) {
 		childScene->clear();
 		double thicc = exp.req();
 		double x1 = exp.lineTail0x();
-		double x2 = exp.lineTail1x();
 		double y1 = exp.lineTail0y();
+		double x2 = exp.lineTail1x();
 		double y2 = exp.lineTail1y();
 		QPen pen = QPen(Qt::black);
 		pen.setWidth(thicc);
@@ -123,6 +120,9 @@ void OutputWidget::listCap(Expression exp) {
 				QString text = QString::fromStdString((*e).transferString().substr(1, ((*e).transferString().length() - 2)));
 				QGraphicsTextItem *childText = childScene->addText(text);
 				childText->setPos(x, y);
+			}
+			else {
+					childScene->addText(QString::fromStdString((*e).transferString()));
 			}
 		}
 	}
