@@ -397,7 +397,7 @@ Expression Expression::handle_map(Environment & env) {
 Expression Expression::handle_set(Environment & env) {
 	// lambda tail must be of size 2
 	if (m_tail.size() != 3) {
-		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
+		throw SemanticError("Error during evaluation: invalid number of set-property arguments to define");
 	}
 	// tail[0] must be a string
 	if (!m_tail[0].isHeadString()) {
@@ -525,21 +525,11 @@ std::string Expression::transferString() const noexcept{
 			text += "(";
 		}
 
-		// If the expression head is a procedure and is not lambda, add a space to output
-		if (env.is_proc(this->head()) && this->isHeadSymbol() && (this->head().asSymbol() != "lambda")) {
 			text += this->head().asString();
-			text += " ";
-		}
-		else {
-			text += this->head().asString();
-		} 
 
 		for (auto e = this->tailConstBegin(); e != this->tailConstEnd(); ++e) {
 			// add correct spacing for lists and lambda
 			text += (*e).transferString();
-			if ((e + 1) != this->tailConstEnd()) {
-				text += " ";
-			}
 		}
 
 		if (!this->isHeadComplex() && !this->isHeadList()) {

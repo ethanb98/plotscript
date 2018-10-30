@@ -66,6 +66,14 @@ TEST_CASE( "Test get built-in procedure", "[environment]" ) {
   REQUIRE(padd(args) == Expression(3.0));
 }
 
+TEST_CASE("", ""){
+	Environment env;
+	env.add_exp(Atom("hello"), Expression(1.0));
+	Environment newEnv;
+	newEnv = env;
+	REQUIRE(newEnv.is_exp(Atom("hello")));
+}
+
 TEST_CASE("Test the add procedure: add", "[environment]") {
 	Environment env;
 	Procedure padd = env.get_proc(Atom("+"));

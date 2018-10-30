@@ -56,19 +56,39 @@ TEST_CASE( "Test constructors", "[atom]" ) {
   }
 
   {
-    INFO("Copy Constructor");
-    Atom a("hi");
-    Atom b(1.0);
-    
-    Atom c = a;
-    REQUIRE(!a.isNone());
-    REQUIRE(!c.isNumber());
-    REQUIRE(c.isSymbol());
+	  INFO("Copy Constructor");
+	  Atom a("hi");
+	  Atom b(1.0);
+	  Atom c(std::complex<double>(1.0, 1.0));
+	  Atom d(std::string("\"hi\""));
 
-    Atom d = b;
-    REQUIRE(!a.isNone());
-    REQUIRE(d.isNumber());
-    REQUIRE(!d.isSymbol());
+	  Atom e = a;
+	  REQUIRE(!a.isNone());
+	  REQUIRE(!e.isNumber());
+	  REQUIRE(e.isSymbol());
+	  REQUIRE(!e.isComplex());
+	  REQUIRE(!e.isString());
+
+	  Atom f = b;
+	  REQUIRE(!a.isNone());
+	  REQUIRE(f.isNumber());
+	  REQUIRE(!f.isSymbol());
+	  REQUIRE(!f.isComplex());
+	  REQUIRE(!f.isString());
+
+	  Atom g = c;
+	  REQUIRE(!c.isNone());
+	  REQUIRE(!g.isNumber());
+	  REQUIRE(!g.isSymbol());
+	  REQUIRE(g.isComplex());
+	  REQUIRE(!g.isString());
+
+	  Atom h = d;
+	  REQUIRE(!d.isNone());
+	  REQUIRE(!h.isNumber());
+	  REQUIRE(!h.isSymbol());
+	  REQUIRE(!h.isComplex());
+	  REQUIRE(h.isString());
   }
 }
 
@@ -156,6 +176,24 @@ TEST_CASE( "Test assignment", "[atom]" ) {
     b = a;
     REQUIRE(b.isSymbol());
     REQUIRE(b.asSymbol() == "hi");
+  }
+
+  {
+	  INFO("complex to complex");
+	  Atom a(std::complex<double>(1.0, 1.0));
+	  Atom b(std::complex<double>(1.0, 1.0));
+	  b = a;
+	  REQUIRE(b.isComplex());
+	  REQUIRE(b.asComplex() == std::complex<double>(1.0, 1.0));
+  }
+
+  {
+	  INFO("string to string");
+	  Atom a("\"hi\"");
+	  Atom b("\"hi\"");
+	  b = a;
+	  REQUIRE(b.isString());
+	  REQUIRE(b.asString() == std::string("\"hi\""));
   }
 }
 

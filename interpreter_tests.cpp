@@ -354,6 +354,39 @@ TEST_CASE("Test input of lambda apply begin", "[interpreter]") {
 	REQUIRE(result == Expression(args1));
 }
 
+TEST_CASE("Testing list", "[interpreter]") {
+	std::string program = "(list 1 2 3)";
+	INFO(program);
+	Expression result = run(program);
+	std::vector<Expression> args1 = { Expression(1), Expression(2), Expression(3) };
+	REQUIRE(result == Expression(args1));
+}
+
+TEST_CASE("Test lambda to pass", "[interpreter]") {
+	std::string program = "(begin (define a (lambda (x y) (+ x y))) (a 2 3))";
+	INFO(program);
+	std::istringstream iss(program);
+	Interpreter interp;
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+	REQUIRE(interp.evaluate() == Expression(5));
+}
+
+TEST_CASE("Testing transferString", "[interpreter]") {
+	std::string program = "(* 1 2 (+ 2 3))";
+	Expression result = run(program);
+	std::string ans = "(10)";
+	REQUIRE(ans == result.transferString());
+}
+
+TEST_CASE("Testing transferString with string", "[interpreter]") {
+	std::string program = "(get-property \"hello\" (+ 2 3))";
+	Expression result = run(program);
+	std::string ans = "NONE";
+	REQUIRE(ans == result.transferString());
+}
+
+
 TEST_CASE("Test lambda apply input error second argument not list", "[interpreter]") {
 	std::string program = "(apply + 3)";
 	INFO(program);
@@ -407,6 +440,96 @@ TEST_CASE("Test input map unary divide", "[interpreter]") {
 	std::vector<Expression> args1 = { Expression(1.), Expression(0.5), Expression(0.25) };
 	Expression result = run(program);
 	REQUIRE(result == Expression(args1));
+}
+
+TEST_CASE("Test for text", "[interpreter]") {
+	std::string program = "(\"hello\")";
+	INFO(program);
+	Expression result = run(program);
+	REQUIRE(result == Expression(std::string("\"hello\"")));
+}
+
+TEST_CASE("Test set-property", "[interpreter]") {
+	std::string program = "(set-property \"number\" \"three\" (3))";
+	INFO(program);
+	Expression result = run(program);
+	REQUIRE(result == Expression(3));
+}
+
+TEST_CASE("Test set-property low req", "[interpreter]") {
+	std::string program = "(set-property \"number\" (3))";
+	INFO(program);
+	std::istringstream iss(program);
+	Interpreter interp;
+
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test set-property no string req", "[interpreter]") {
+	std::string program = "(set-property (+ 1 2) \"number\" \"three\")";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test get-property", "[interpreter]") {
+	std::string program = "(begin (define a (+ 1 I)) (define b (set-property \"note\" (3) a)) (get-property \"note\" b))";
+	INFO(program);
+	Expression result = run(program);
+	REQUIRE(result == Expression(3));
+}
+
+TEST_CASE("Test get-property low req", "[interpreter]") {
+	std::string program = "(get-property \"note\")";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test get-property no string req", "[interpreter]") {
+	std::string program = "(get-property (3) b)";
+	INFO(program);
+	Interpreter interp;
+
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
+}
+
+TEST_CASE("Test ispoint for false", "[interpreter]") {
+	std::map<std::string, Expression> propmap;
+	std::string program = "(set-property \"size\" 20 (make-point 0 0))";
+	Expression result(10);
+	REQUIRE(result.isPoint() == false);
+}
+
+TEST_CASE("Test isline for false", "[interpreter]") {
+	std::map<std::string, Expression> propmap;
+	std::string program = "(set-property \"thickness\" (4) (make-line (make-point 0 0) (make-point 20 20)))";
+	Expression result(10);
+	REQUIRE(result.isLine() == false);
+}
+
+TEST_CASE("Test istext for false", "[interpreter]") {
+	std::map<std::string, Expression> propmap;
+	std::string program = "(set-property \"position\" (make-point 10 10) (make-text \"hi\"))";
+	Expression result(0);
+	REQUIRE(result.isText() == false);
 }
 
 TEST_CASE("Test lambda map input error second argument not list", "[interpreter]") {
@@ -505,20 +628,6 @@ TEST_CASE("Test Lambda tail is proc incorrect", "[interpreter]") {
 	REQUIRE(ok == true);
 
 	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
-}
-
-TEST_CASE("Test Lambda previosuly defined incorrect", "[interpreter]") {
-	std::string program = "(begin (define a (lambda (x) (+ x 2))) (define a (lambda (x y) (+ x y))))";
-	INFO(program);
-	Interpreter interp;
-
-	std::istringstream iss(program);
-
-	bool ok = interp.parseStream(iss);
-	REQUIRE(ok == true);
-
-	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
-
 }
 
 TEST_CASE("Test apply tail incorrect length", "[interpreter]") {
