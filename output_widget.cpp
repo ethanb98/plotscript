@@ -48,10 +48,16 @@ void OutputWidget::receiveString(QString str) {
 					Expression newExp = exp.textReq();
 					double x = newExp.pointTail0();
 					double y = newExp.pointTail1();
+					double scale = exp.req();
+					double rot = exp.textRotReq();
+
 
 					QString text = QString::fromStdString(exp.transferString().substr(2, (exp.transferString().length() - 4)));
 					QGraphicsTextItem *childText = childScene->addText(text);
-					childText->setPos(x, y);
+					//childText->setPos(x, y);
+					childText->boundingRect().moveCenter(QPointF(x, y));
+					childText->setScale(scale);
+					childText->setRotation(rot);
 				}
 				else {
 					childScene->clear();
@@ -116,10 +122,15 @@ void OutputWidget::listCap(Expression exp) {
 				Expression newExp = (*e).textReq();
 				double x = newExp.pointTail0();
 				double y = newExp.pointTail1();
+				double scale = (*e).req();
+				double rot = (*e).textRotReq();
 
 				QString text = QString::fromStdString((*e).transferString().substr(2, ((*e).transferString().length() - 4)));
 				QGraphicsTextItem *childText = childScene->addText(text);
-				childText->setPos(x, y);
+				//childText->setPos(x, y);
+				childText->boundingRect().moveCenter(QPointF(x, y));
+				childText->setScale(scale);
+				childText->setRotation(rot);
 			}
 			else {
 					childScene->addText(QString::fromStdString((*e).transferString()));
