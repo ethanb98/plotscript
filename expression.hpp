@@ -97,6 +97,7 @@ public:
   double pointTail1() const noexcept;
   double req() const noexcept;
   Expression textReq() const noexcept;
+  double textRotReq() const noexcept;
   double lineTail0x() const noexcept;
   double lineTail0y() const noexcept;
   double lineTail1x() const noexcept;

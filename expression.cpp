@@ -578,11 +578,21 @@ double Expression::pointTail1() const noexcept{
 double Expression::req() const noexcept {
 	Expression point(Atom("\"point\""));
 	Expression line(Atom("\"line\""));
+	Expression text(Atom("\"text\""));
 	if ((propmap.find("\"object-name\"") != propmap.end()) && propmap.at("\"object-name\"") == point) {
 		return propmap.at("\"size\"").head().asNumber();
 	}
 	if ((propmap.find("\"object-name\"") != propmap.end()) && propmap.at("\"object-name\"") == line) {
 		return propmap.at("\"thickness\"").head().asNumber();
+	}
+	if ((propmap.find("\"object-name\"") != propmap.end()) && propmap.at("\"object-name\"") == text) {
+		return propmap.at("\"text-scale\"").head().asNumber();
+		/*if (propmap.at("\"text-scale\"").head().asNumber() > 0) {
+			return propmap.at("\"text-scale\"").head().asNumber();
+		}*/
+		/*else {
+			throw SemanticError("Error during notebook: scale is not positive non-zero number");
+		}*/
 	}
 	return 0;
 }
@@ -590,6 +600,11 @@ double Expression::req() const noexcept {
 Expression Expression::textReq() const noexcept{
 		return propmap.at("\"position\"");
 }
+
+double Expression::textRotReq() const noexcept {
+	return propmap.at("\"text-rotation\"").head().asNumber();
+}
+
 
 double Expression::lineTail0x() const noexcept {
 	return m_tail[0].m_tail[0].head().asNumber();
