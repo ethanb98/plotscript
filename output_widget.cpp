@@ -45,6 +45,14 @@ void OutputWidget::receiveString(QString str) {
 			else {
 				if (exp.isText()) {
 					childScene->clear();
+					/*auto font = QFont("Monospace");
+					font.setStyleHint(QFont::TypeWriter);
+					font.setPointSize(1);*/
+					
+					childView->fitInView(childScene->itemsBoundingRect(), Qt::IgnoreAspectRatio);
+					childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+					childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
 					Expression newExp = exp.textReq();
 					double x = newExp.pointTail0();
 					double y = newExp.pointTail1();
@@ -54,10 +62,16 @@ void OutputWidget::receiveString(QString str) {
 
 					QString text = QString::fromStdString(exp.transferString().substr(2, (exp.transferString().length() - 4)));
 					QGraphicsTextItem *childText = childScene->addText(text);
-					//childText->setPos(x, y);
-					childText->boundingRect().moveCenter(QPointF(x, y));
+					
+					
+					//childText->setFont(font);
 					childText->setScale(scale);
 					childText->setRotation(rot);
+					QRectF childRect = childText->sceneBoundingRect();
+					x = x - childRect.width() / 2;
+					y = y - childRect.height() / 2;
+					childText->setPos(x, y);
+					//childText->boundingRect().moveCenter(QPointF(x, y));
 				}
 				else {
 					childScene->clear();
@@ -118,7 +132,14 @@ void OutputWidget::listCap(Expression exp) {
 				childScene->QGraphicsScene::addLine(x1, y1, x2, y2, pen);
 			}
 			else if ((*e).isText()) {
-
+				/*auto font = QFont("Monospace");
+				font.setStyleHint(QFont::TypeWriter);
+				font.setPointSize(1);*/
+				
+				childView->fitInView(childScene->itemsBoundingRect(), Qt::IgnoreAspectRatio);
+				childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+				childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+				
 				Expression newExp = (*e).textReq();
 				double x = newExp.pointTail0();
 				double y = newExp.pointTail1();
@@ -127,10 +148,14 @@ void OutputWidget::listCap(Expression exp) {
 
 				QString text = QString::fromStdString((*e).transferString().substr(2, ((*e).transferString().length() - 4)));
 				QGraphicsTextItem *childText = childScene->addText(text);
-				//childText->setPos(x, y);
-				childText->boundingRect().moveCenter(QPointF(x, y));
+				//childText->setFont(font);
 				childText->setScale(scale);
 				childText->setRotation(rot);
+				QRectF childRect = childText->sceneBoundingRect();
+				x = x - childRect.width() / 2;
+				y = y - childRect.height() / 2;
+				childText->setPos(x, y);
+				//childText->boundingRect().moveCenter(QPointF(x, y));
 			}
 			else {
 					childScene->addText(QString::fromStdString((*e).transferString()));

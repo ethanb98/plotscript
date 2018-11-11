@@ -417,19 +417,34 @@ Expression Expression::handle_set(Environment & env) {
 Expression Expression::handle_get(Environment & env) {
 	// lambda tail must be of size 2
 	if (m_tail.size() != 2) {
-		throw SemanticError("Error during evaluation: invalid number of lambda arguments to define");
+		throw SemanticError("Error during evaluation: invalid number of get-property arguments to define");
 	}
 	// tail[0] must be a string
 	if (!m_tail[0].isHeadString()) {
-		throw SemanticError("Error during evaluation: first argument to set-property not a string");
+		throw SemanticError("Error during evaluation: first argument to get-property not a string");
 	}
-	// If the key doesn't exist, return expression type NONE
-	//if(m_tail[0] != propmap.)
-	
+
 	Expression exp = m_tail[1].eval(env);
 	std::string key = m_tail[0].head().asString();
 
 	return exp.propmap[key];
+}
+
+// returns discrete plot information as required
+Expression Expression::handle_discrete(Environment & env) {
+	// function tail must be of size 2
+	if (m_tail.size() != 2) {
+		throw SemanticError("Error during evaluation: invalid number of discrete-plot arguments to define");
+	}
+	// tail[0] must be a list
+	if (!m_tail[0].isHeadList()) {
+		throw SemanticError("Error during evaluation: first argument to discrete-plot not a list");
+	}
+	// tail[1] must be a list
+	if (!m_tail[1].isHeadList()) {
+		throw SemanticError("Error during evaluation: second argument to discrete-plot not a list");
+	}
+
 }
 
 
@@ -468,6 +483,9 @@ Expression Expression::eval(Environment & env){
 	}
 	else if (m_head.isSymbol() && m_head.asSymbol() == "get-property") {
 		return handle_get(env);
+	}
+	else if (m_head.isSymbol() && m_head.asSymbol() == "discrete-plot") {
+		return handle_discrete(env);
 	}
 	// else attempt to treat as procedure
 	else{ 

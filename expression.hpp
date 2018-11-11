@@ -128,7 +128,7 @@ private:
   Expression handle_map(Environment & env);
   Expression handle_set(Environment & env);
   Expression handle_get(Environment & env);
-
+  Expression handle_discrete(Environment & env);
 
 };
 
