@@ -4,6 +4,7 @@
 #include <list>
 
 #include <iostream>
+#include <algorithm>
 
 #include "environment.hpp"
 #include "semantic_error.hpp"
@@ -138,12 +139,12 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
 
   // head must be a symbol
   if(!op.isSymbol()){
-    throw SemanticError("Error during evaluation: procedure name not a symbol");
+    throw SemanticError("Error during evaluation: procedure name not a symbol (apply)");
   }
   
   // must map to a proc
   if(!env.is_proc(op)){
-    throw SemanticError("Error during evaluation: symbol does not name a procedure");
+    throw SemanticError("Error during evaluation: symbol does not name a procedure (apply)");
   }
 
   
@@ -436,15 +437,209 @@ Expression Expression::handle_discrete(Environment & env) {
 	if (m_tail.size() != 2) {
 		throw SemanticError("Error during evaluation: invalid number of discrete-plot arguments to define");
 	}
+	Expression test1 = m_tail[0].eval(env);
+	Expression test2 = m_tail[1].eval(env);
 	// tail[0] must be a list
-	if (!m_tail[0].isHeadList()) {
+	if (!test1.isHeadList()) {
 		throw SemanticError("Error during evaluation: first argument to discrete-plot not a list");
 	}
 	// tail[1] must be a list
-	if (!m_tail[1].isHeadList()) {
+	if (!test2.isHeadList()) {
 		throw SemanticError("Error during evaluation: second argument to discrete-plot not a list");
 	}
+	
+	// Create the variables to be used later
+	const double N = 20;
+	const double orig = 0;
+	Expression exp = m_tail[0].eval(env);
+	Expression last = m_tail[1].eval(env);
+	double xMax = 0;
+	double xMin = 5000;
+	double yMax = 0;
+	double yMin = 5000;
+	
+	// Iterate through the lists to find the maxes and mins
+	for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e) {
+		xMax = std::max((*e).m_tail[0].head().asNumber(), xMax);
+		xMin = std::min((*e).m_tail[0].head().asNumber(), xMin);
+		yMax = std::max((*e).m_tail[1].head().asNumber(), yMax);
+		yMin = std::min((*e).m_tail[1].head().asNumber(), yMin);
+	}
 
+	// Find the x and y scale values
+	double xScale = N / (xMax - xMin);
+	double yScale = N / (yMax - yMin);
+
+	// remake the maxes and mins to the x and y scale values
+	xMax = xMax * xScale;
+	xMin = xMin * xScale;
+	yMax = yMax * yScale;
+	yMin = yMin * yScale;
+
+	// Create the expressions for the x and y positions
+	Expression xMaxPos = Expression(Atom(xMax));
+	Expression xMinPos = Expression(Atom(xMin));
+	Expression yMaxPos = Expression(Atom(yMax));
+	Expression yMinPos = Expression(Atom(yMin));
+	Expression origPos = Expression(Atom(orig));
+
+	// Create the atoms for points and lines
+	Atom pointpos = Atom("make-point");
+	Atom linepos = Atom("make-line");
+
+	// Point 1 created and evaluated
+	// (make-point -10 10)
+	std::vector<Expression> point1;
+	point1.push_back(xMinPos); // Push back the point values
+	point1.push_back(yMaxPos);
+	Expression point1pos = Expression(pointpos, point1).eval(env); // Eval the point
+
+	// Line 1 created and evaluated
+	// (make-line (make-point -10 0) (make-point -10 10))
+	std::vector<Expression> line1;
+	std::vector<Expression> line1p1;
+	std::vector<Expression> line1p2;
+
+	line1p1.push_back(xMinPos); // Push back the point 1 values
+	line1p1.push_back(origPos);
+
+	line1p2.push_back(xMinPos); // Push back the point 2 values
+	line1p2.push_back(yMaxPos);
+
+	line1.push_back(Expression(pointpos, line1p1)); // Push back the line of points
+	line1.push_back(Expression(pointpos, line1p2));
+	Expression line1pos = Expression(linepos, line1).eval(env); // Eval the line
+
+	// Point 2 created and evaluated
+	// (make-point 10 -10)
+	std::vector<Expression> point2;
+	point2.push_back(xMaxPos); // Push back the point values
+	point2.push_back(yMinPos);
+	Expression point2pos = Expression(pointpos, point2).eval(env); // Eval the point
+
+	// Line 2 created and evaluated
+	// (make-line (make-point 10 0) (make-point 10 -10))
+	std::vector<Expression> line2;
+	std::vector<Expression> line2p1;
+	std::vector<Expression> line2p2;
+	line2p1.push_back(xMaxPos); // Push back the point 1 values
+	line2p1.push_back(origPos);
+	line2p2.push_back(xMaxPos); // Push back the point 2 values
+	line2p2.push_back(yMinPos);
+	line2.push_back(Expression(pointpos, line2p1)); // Push back the line of points
+	line2.push_back(Expression(pointpos, line2p2));
+	Expression line2pos = Expression(linepos, line2).eval(env); // Eval the line
+
+	// Line 3 created and evaluated
+	// (make-line (make-point 0 10) (make-point 0 -10))
+	std::vector<Expression> line3;
+	std::vector<Expression> line3p1;
+	std::vector<Expression> line3p2;
+	line3p1.push_back(origPos); // Push back the point 1 values
+	line3p1.push_back(xMaxPos);
+	line3p2.push_back(origPos); // Push back the point 2 values
+	line3p2.push_back(yMinPos);
+	line3.push_back(Expression(pointpos, line3p1)); // Push back the line of points
+	line3.push_back(Expression(pointpos, line3p2));
+	Expression line3pos = Expression(linepos, line3).eval(env); // Eval the line
+
+	// Line 4 created and evaluated
+	// (make-line (make-point -10 0) (make-point 10 0))
+	std::vector<Expression> line4;
+	std::vector<Expression> line4p1;
+	std::vector<Expression> line4p2;
+	line4p1.push_back(xMinPos); // Push back the point 1 values
+	line4p1.push_back(origPos);
+	line4p2.push_back(xMaxPos); // Push back the point 2 values
+	line4p2.push_back(origPos);
+	line4.push_back(Expression(pointpos, line4p1)); // Push back the line of points
+	line4.push_back(Expression(pointpos, line4p2));
+	Expression line4pos = Expression(linepos, line4).eval(env); // Eval the line
+
+	// Line 5 created and evaluated
+	// (make-line (make-point -10 10) (make-point 10 10))
+	std::vector<Expression> line5;
+	std::vector<Expression> line5p1;
+	std::vector<Expression> line5p2;
+	line5p1.push_back(xMinPos); // Push back the point 1 values
+	line5p1.push_back(yMaxPos);
+	line5p2.push_back(xMaxPos); // Push back the point 2 values
+	line5p2.push_back(yMaxPos);
+	line5.push_back(Expression(pointpos, line5p1)); // Push back the line of points
+	line5.push_back(Expression(pointpos, line5p2));
+	Expression line5pos = Expression(linepos, line5).eval(env); // Eval the line
+
+	// Line 6 created and evaluated
+	// (make-line (make-point -10 -10) (make-point 10 -10))
+	std::vector<Expression> line6;
+	std::vector<Expression> line6p1;
+	std::vector<Expression> line6p2;
+	line6p1.push_back(xMinPos); // Push back the point 1 values
+	line6p1.push_back(yMinPos);
+	line6p2.push_back(xMaxPos); // Push back the point 2 values
+	line6p2.push_back(yMinPos);
+	line6.push_back(Expression(pointpos, line6p1)); // Push back the line of points
+	line6.push_back(Expression(pointpos, line6p2));
+	Expression line6pos = Expression(linepos, line6).eval(env); // Eval the line
+
+	// Line 7 created and evaluated
+	// (make-line (make-point -10 10) (make-point -10 -10))
+	std::vector<Expression> line7;
+	std::vector<Expression> line7p1;
+	std::vector<Expression> line7p2;
+	line7p1.push_back(xMinPos); // Push back the point 1 values
+	line7p1.push_back(yMaxPos);
+	line7p2.push_back(xMinPos); // Push back the point 2 values
+	line7p2.push_back(yMinPos);
+	line7.push_back(Expression(pointpos, line7p1)); // Push back the line of points
+	line7.push_back(Expression(pointpos, line7p2));
+	Expression line7pos = Expression(linepos, line7).eval(env); // Eval the line
+	
+	// Line 8 created and evaluated
+	// (make-line (make-point 10 10) (make-point 10 -10))
+	std::vector<Expression> line8;
+	std::vector<Expression> line8p1;
+	std::vector<Expression> line8p2;
+	line8p1.push_back(xMaxPos); // Push back the point 1 values
+	line8p1.push_back(yMaxPos);
+	line8p2.push_back(xMaxPos); // Push back the point 2 values
+	line8p2.push_back(yMinPos);
+	line8.push_back(Expression(pointpos, line8p1)); // Push back the line of points
+	line8.push_back(Expression(pointpos, line8p2));
+	Expression line8pos = Expression(linepos, line8).eval(env); // Eval the line
+
+	// Push all the necessary expressions onto the result
+	// vector of expressions
+	std::vector<Expression> result;
+	result.push_back(point1pos);
+	result.push_back(line1pos);
+	result.push_back(point2pos);
+	result.push_back(line2pos);
+	result.push_back(line3pos);
+	result.push_back(line4pos);
+	result.push_back(line5pos);
+	result.push_back(line6pos);
+	result.push_back(line7pos);
+	result.push_back(line8pos);
+	
+	// Iterate through the lists to add all x's and y's to the vector
+	for (auto f = exp.tailConstBegin(); f != exp.tailConstEnd(); ++f) {
+		std::string temp = (*f).m_tail[0].head().asString();
+		temp = "\"" + temp + "\"";
+		result.push_back(Expression(temp));
+	}
+	for (auto g = exp.tailConstBegin(); g != exp.tailConstEnd(); ++g) {
+		std::string temp = (*g).m_tail[0].head().asString();
+		temp = "\"" + temp + "\"";
+		result.push_back(Expression(temp));
+	}
+
+	for (auto h = last.tailConstBegin(); h != last.tailConstEnd(); ++h) {
+		result.push_back(Expression((*h).m_tail[1].head().asString()));
+	}
+
+	// Returns the vector of expressions as an expression
+	return Expression(result);
 }
 
 
@@ -620,6 +815,7 @@ Expression Expression::textReq() const noexcept{
 }
 
 double Expression::textRotReq() const noexcept {
+	// need to convert from radian to degree
 	return propmap.at("\"text-rotation\"").head().asNumber();
 }
 
