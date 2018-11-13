@@ -442,6 +442,48 @@ TEST_CASE("Test input map unary divide", "[interpreter]") {
 	REQUIRE(result == Expression(args1));
 }
 
+/*TEST_CASE("Test input for discrete-plot", "[interpreter]") {
+	std::string program = "(discrete-plot (list (list -1 -1) (list 1 1)) (list (list \"title\" \"The-Title\") (list \"abscissa-label\" \"X-Label\") (list \"ordinate-label\" \"Y-Label\")))";
+	INFO(program);
+	std::vector<Expression> point1 = { Expression(-10), Expression(10) };
+	std::vector<Expression> line1p1 = { Expression(-10), Expression(0) };
+	std::vector<Expression> line1p2 = { Expression(-10), Expression(10) };
+	std::vector<Expression> line1 = { Expression(line1p1), Expression(line1p2) };
+	std::vector<Expression> point2 = { Expression(10), Expression(-10) };
+	std::vector<Expression> line2p1 = { Expression(10), Expression(0) };
+	std::vector<Expression> line2p2 = { Expression(10), Expression(-10) };
+	std::vector<Expression> line2 = { Expression(line2p1), Expression(line2p2) };
+	std::vector<Expression> line3p1 = { Expression(0), Expression(10) };
+	std::vector<Expression> line3p2 = { Expression(0), Expression(-10) };
+	std::vector<Expression> line3 = { Expression(line3p1), Expression(line3p2) };
+	std::vector<Expression> line4p1 = { Expression(-10), Expression(0) };
+	std::vector<Expression> line4p2 = { Expression(10), Expression(0) };
+	std::vector<Expression> line4 = { Expression(line4p1), Expression(line4p2) };
+	std::vector<Expression> line5p1 = { Expression(-10), Expression(10) };
+	std::vector<Expression> line5p2 = { Expression(10), Expression(10) };
+	std::vector<Expression> line5 = { Expression(line5p1), Expression(line5p2) };
+	std::vector<Expression> line6p1 = { Expression(-10), Expression(-10) };
+	std::vector<Expression> line6p2 = { Expression(10), Expression(-10) };
+	std::vector<Expression> line6 = { Expression(line6p1), Expression(line6p2) };
+	std::vector<Expression> line7p1 = { Expression(-10), Expression(10) };
+	std::vector<Expression> line7p2 = { Expression(-10), Expression(-10) };
+	std::vector<Expression> line7 = { Expression(line7p1), Expression(line7p2) };
+	std::vector<Expression> line8p1 = { Expression(10), Expression(10) };
+	std::vector<Expression> line8p2 = { Expression(10), Expression(-10) };
+	std::vector<Expression> line8 = { Expression(line8p1), Expression(line8p2) };
+
+	std::vector<Expression> args1 = { Expression(point1), Expression(line1), 
+		Expression(point2), Expression(line2), Expression(line3), Expression(line4), 
+		Expression(line5), Expression(line6), Expression(line7), Expression(line8), 
+		Expression(std::string("-1")), Expression(std::string("1")), 
+		Expression(std::string("-1")), Expression(std::string("1")), 
+		Expression(std::string("The Title")), Expression(std::string("X Label")), 
+		Expression(std::string("Y Label")) };
+
+	Expression result = run(program);
+	REQUIRE(result == Expression(args1));
+}*/
+
 TEST_CASE("Test for text", "[interpreter]") {
 	std::string program = "(\"hello\")";
 	INFO(program);
