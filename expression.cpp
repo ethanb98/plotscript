@@ -470,6 +470,11 @@ Expression Expression::handle_discrete(Environment & env) {
 	double xScale = N / (xMax - xMin);
 	double yScale = N / (yMax - yMin);
 
+	/*std::string tempXMax = xMax;
+	std::string tempXMin = xMin;
+	std::string tempYMax = yMax;
+	std::string tempYMin = yMin;*/
+
 	// remake the maxes and mins to the x and y scale values
 	xMax = xMax * xScale;
 	xMin = xMin * xScale;
@@ -639,7 +644,10 @@ Expression Expression::handle_discrete(Environment & env) {
 	}
 
 	// Returns the vector of expressions as an expression
-	return Expression(result);
+	Expression FinalResults = Expression(result);
+	FinalResults.head().setDiscrete();
+	return FinalResults;
+	//return Expression(result);
 }
 
 

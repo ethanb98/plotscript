@@ -6,6 +6,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
+#include <QtMath>
 
 #include <string>
 #include <sstream>
