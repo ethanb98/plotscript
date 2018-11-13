@@ -89,6 +89,9 @@ Atom & Atom::operator=(const Atom & x){
 	else if (x.m_type == StringKind) {
 		setString(x.stringValue);
 	}
+	else if (x.m_type == DiscreteKind) {
+		setDiscrete();
+	}
   }
   return *this;
 }
@@ -127,6 +130,10 @@ bool Atom::isLambda() const noexcept {
 
 bool Atom::isString() const noexcept {
 	return m_type == StringKind;
+}
+
+bool Atom::isDiscrete() const noexcept {
+	return m_type == DiscreteKind;
 }
 
 void Atom::setNumber(double value){
@@ -170,6 +177,10 @@ void Atom::setString(const std::string & value) {
 
 	// copy construct in place
 	new (&stringValue) std::string(value);
+}
+
+void Atom::setDiscrete() {
+	m_type = DiscreteKind;
 }
 
 double Atom::asNumber() const noexcept{
@@ -258,6 +269,11 @@ bool Atom::operator==(const Atom & right) const noexcept{
   {
 	  if (right.m_type != StringKind) return false;
 	  return stringValue == right.stringValue;
+  }
+  break;
+  case DiscreteKind:
+  {
+	  if (right.m_type != DiscreteKind) return false;
   }
   break;
   default:

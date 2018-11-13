@@ -57,8 +57,11 @@ public:
   /// predicate to determine if an Atom is of type Lambda
   bool isLambda() const noexcept;
 
-  ///predicate to determine if an Atom is of type String
+  /// predicate to determine if an Atom is of type String
   bool isString() const noexcept;
+
+  /// predicate to determine if an Atom is of type Discrete
+  bool isDiscrete() const noexcept;
 
   /// value of Atom as a number, return 0 if not a Number
   double asNumber() const noexcept;
@@ -81,10 +84,13 @@ public:
   // helper to set type of Lambda
   void setLambda();
 
+  // helper to set type of Discrete
+  void setDiscrete();
+
 private:
 
   // internal enum of known types
-  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind, ListKind, LambdaKind, StringKind};
+  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind, ListKind, LambdaKind, StringKind, DiscreteKind};
 
   // track the type
   Type m_type;
