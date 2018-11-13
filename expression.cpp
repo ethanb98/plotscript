@@ -470,10 +470,10 @@ Expression Expression::handle_discrete(Environment & env) {
 	double xScale = N / (xMax - xMin);
 	double yScale = N / (yMax - yMin);
 
-	/*std::string tempXMax = xMax;
-	std::string tempXMin = xMin;
-	std::string tempYMax = yMax;
-	std::string tempYMin = yMin;*/
+	std::string tempXMax = Atom(xMax).asString();
+	std::string tempXMin = Atom(xMin).asString();
+	std::string tempYMax = Atom(yMax).asString();
+	std::string tempYMin = Atom(yMin).asString();
 
 	// remake the maxes and mins to the x and y scale values
 	xMax = xMax * xScale;
@@ -628,16 +628,14 @@ Expression Expression::handle_discrete(Environment & env) {
 	result.push_back(line8pos);
 	
 	// Iterate through the lists to add all x's and y's to the vector
-	for (auto f = exp.tailConstBegin(); f != exp.tailConstEnd(); ++f) {
-		std::string temp = (*f).m_tail[0].head().asString();
-		temp = "\"" + temp + "\"";
-		result.push_back(Expression(temp));
-	}
-	for (auto g = exp.tailConstBegin(); g != exp.tailConstEnd(); ++g) {
-		std::string temp = (*g).m_tail[0].head().asString();
-		temp = "\"" + temp + "\"";
-		result.push_back(Expression(temp));
-	}
+	tempXMin = "\"" + tempXMin + "\"";
+	tempXMax = "\"" + tempXMax + "\"";
+	tempYMin = "\"" + tempYMin + "\"";
+	tempYMax = "\"" + tempYMax + "\"";
+	result.push_back(Expression(tempXMin));
+	result.push_back(Expression(tempXMax));
+	result.push_back(Expression(tempYMin));
+	result.push_back(Expression(tempYMax));
 
 	for (auto h = last.tailConstBegin(); h != last.tailConstEnd(); ++h) {
 		result.push_back(Expression((*h).m_tail[1].head().asString()));
