@@ -109,7 +109,7 @@ void OutputWidget::listCap(Expression exp) {
 	//const double orig = 0;
 	clearScreen = false;
 	if (exp.isPoint()) {
-		std::cout << "Printing Circle" << std::endl;
+		//std::cout << "Printing Circle" << std::endl;
 		childScene->clear();
 		double size = 0;
 		if (exp.head().isDiscrete()) {
@@ -129,7 +129,7 @@ void OutputWidget::listCap(Expression exp) {
 		childScene->addEllipse(val, pen, brush);
 	}
 	else if (exp.isLine()) {
-		std::cout << "Printing Line" << std::endl;
+		//std::cout << "Printing Line" << std::endl;
 		childScene->clear();
 		double thicc = 0;
 		if (exp.head().isDiscrete()) {
@@ -151,7 +151,7 @@ void OutputWidget::listCap(Expression exp) {
 		childScene->clear();
 		for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
 			if ((*e).isPoint()) {
-				std::cout << "Making list circle" << std::endl;
+				//std::cout << "Making list circle" << std::endl;
 				double size = 0;
 				if (exp.head().isDiscrete()) {
 					size = P;
@@ -169,7 +169,7 @@ void OutputWidget::listCap(Expression exp) {
 				childScene->addEllipse(val, pen, brush);
 			}
 			else if ((*e).isLine()) {
-				std::cout << "Making list line" << std::endl;
+				//std::cout << "Making list line" << std::endl;
 				double thicc = 0;
 				double y1 = 0;
 				double y2 = 0;
@@ -196,7 +196,7 @@ void OutputWidget::listCap(Expression exp) {
 				childScene->QGraphicsScene::addLine(x1, y1, x2, y2, pen);
 			}
 			else if ((*e).isText()) {
-				std::cout << "Making list Text" << std::endl;
+				//std::cout << "Making list Text" << std::endl;
 				auto font = QFont("Monospace");
 				font.setStyleHint(QFont::TypeWriter);
 				font.setPointSize(1);
@@ -227,7 +227,7 @@ void OutputWidget::listCap(Expression exp) {
 				//childText->boundingRect().moveCenter(QPointF(x, y));
 			}
 			else if (exp.head().isDiscrete()) {
-				std::cout << "Back in Discrete" << std::endl;
+				//std::cout << "Back in Discrete" << std::endl;
 				static int i = 0;
 				static double xmin = 0;
 				static double xmax = 0;
@@ -262,38 +262,38 @@ void OutputWidget::listCap(Expression exp) {
 				Expression Function = (*e).req();
 				if (Function.head().isNone()) {
 					i++;
-					std::cout << i << std::endl;
+					//std::cout << i << std::endl;
 				}
 
 				if (i == 1) {
 					// xmin
 					XMIN = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					xmin = std::stod(XMIN);
-					std::cout << "xmin: " << xmin << std::endl;
+					//std::cout << "xmin: " << xmin << std::endl;
 				}
 				else if (i == 2) {
 					// xmax
 					XMAX = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					xmax = std::stod(XMAX);
-					std::cout << "xmax: " << xmax << std::endl;
+					//std::cout << "xmax: " << xmax << std::endl;
 					xscale = N / (xmax - xmin);
-					std::cout << "xmax: " << xmax << std::endl;
-					std::cout << "xscale: " << xscale << std::endl;
+					//std::cout << "xmax: " << xmax << std::endl;
+					//std::cout << "xscale: " << xscale << std::endl;
 				}
 				else if (i == 3) {
 					// ymin
 					YMIN = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					ymin = std::stod(YMIN);
-					std::cout << "ymin: " << ymin << std::endl;
+					//std::cout << "ymin: " << ymin << std::endl;
 				}
 				else if (i == 4) {
 					// ymax
 					YMAX = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					ymax = std::stod(YMAX);
-					std::cout << "ymax: " << ymax << std::endl;
+					//std::cout << "ymax: " << ymax << std::endl;
 					yscale = N / (ymax - ymin);
-					std::cout << "ymax: " << ymax << std::endl;
-					std::cout << "yscale: " << yscale << std::endl;
+					//std::cout << "ymax: " << ymax << std::endl;
+					//std::cout << "yscale: " << yscale << std::endl;
 				}
 				else if (i == 5) {
 					// title
@@ -311,10 +311,10 @@ void OutputWidget::listCap(Expression exp) {
 					xmax *= xscale;
 					ymin = ymin * yscale * -1;
 					ymax = ymax * yscale * -1;
-					std::cout << "xmin: " << xmin << std::endl;
-					std::cout << "xmax: " << xmax << std::endl;
-					std::cout << "ymin: " << ymin << std::endl;
-					std::cout << "ymax: " << ymax << std::endl;
+					//std::cout << "xmin: " << xmin << std::endl;
+					//std::cout << "xmax: " << xmax << std::endl;
+					//std::cout << "ymin: " << ymin << std::endl;
+					//std::cout << "ymax: " << ymax << std::endl;
 
 					QString Xmin = QString::fromStdString(XMIN);
 					QString Xmax = QString::fromStdString(XMAX);
@@ -333,43 +333,43 @@ void OutputWidget::listCap(Expression exp) {
 
 					childxmin->setFont(font);
 					xpos = xmin - (childxmin->boundingRect().width() / 2);
-					std::cout << "xmin xpos: " << xpos << std::endl;
+					//std::cout << "xmin xpos: " << xpos << std::endl;
 					ypos = (ymin + C) - (childxmin->boundingRect().height() / 2);
-					std::cout << "xmin ypos: " << ypos << std::endl;
+					//std::cout << "xmin ypos: " << ypos << std::endl;
 					childxmin->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 					
 					childxmax->setFont(font);
 					xpos = xmax - (childxmax->boundingRect().width() / 2);
-					std::cout << "xmax xpos: " << xpos << std::endl;
+					//std::cout << "xmax xpos: " << xpos << std::endl;
 					ypos = (ymin + C) - (childxmax->boundingRect().height() / 2);
-					std::cout << "xmax ypos: " << ypos << std::endl;
+					//std::cout << "xmax ypos: " << ypos << std::endl;
 					childxmax->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 
 					childymin->setFont(font);
 					xpos = (xmin - D) - (childymin->boundingRect().width() / 2);
-					std::cout << "ymin xpos: " << xpos << std::endl;
+					//std::cout << "ymin xpos: " << xpos << std::endl;
 					ypos = ymin - (childymin->boundingRect().height() / 2);
-					std::cout << "ymin ypos: " << ypos << std::endl;
+					//std::cout << "ymin ypos: " << ypos << std::endl;
 					childymin->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 
 					childymax->setFont(font);
 					xpos = (xmin - D) - (childymax->boundingRect().width() / 2);
-					std::cout << "ymax xpos: " << xpos << std::endl;
+					//std::cout << "ymax xpos: " << xpos << std::endl;
 					ypos = ymax - (childymax->boundingRect().height() / 2);
-					std::cout << "ymax ypos: " << ypos << std::endl;
+					//std::cout << "ymax ypos: " << ypos << std::endl;
 					childymax->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 
 					//QRectF childRectTit = childTitle->sceneBoundingRect();
 					childTitle->setFont(font);
-					std::cout << "Pre-Title xpos: " << xpos << std::endl;
+					//std::cout << "Pre-Title xpos: " << xpos << std::endl;
 					xpos = ((xmax + xmin) / 2) - (childTitle->boundingRect().width() / 2);
-					std::cout << "Title xpos: " << xpos << std::endl;
+					//std::cout << "Title xpos: " << xpos << std::endl;
 					ypos = (ymax - A) - (childTitle->boundingRect().height() / 2);
-					std::cout << "Title ypos: " << ypos << std::endl;
+					//std::cout << "Title ypos: " << ypos << std::endl;
 					childTitle->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 
@@ -377,9 +377,9 @@ void OutputWidget::listCap(Expression exp) {
 					childXLabel->setFont(font);
 					//QRectF childRectXLab = childXLabel->sceneBoundingRect();
 					xpos = ((xmax + xmin) / 2) - (childXLabel->boundingRect().width() / 2);
-					std::cout << "Xlabel xpos: " << xpos << std::endl;
+					//std::cout << "Xlabel xpos: " << xpos << std::endl;
 					ypos = (ymin + A) - (childXLabel->boundingRect().height() / 2);
-					std::cout << "Xlabel ypos: " << ypos << std::endl;
+					//std::cout << "Xlabel ypos: " << ypos << std::endl;
 					childXLabel->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 
@@ -390,10 +390,9 @@ void OutputWidget::listCap(Expression exp) {
 
 					//QRectF childRectYLab = childYLabel->sceneBoundingRect();
 					xpos = (xmin - B) - (childYLabel->boundingRect().width() / 2);
-					std::cout << "Ylabel xpos: " << xpos << std::endl;
+					//std::cout << "Ylabel xpos: " << xpos << std::endl;
 					ypos = ((ymax + ymin) / 2) - (childYLabel->boundingRect().height() / 2);
-					//ypos *= -1;
-					std::cout << "Ylabel ypos: " << ypos << std::endl;
+					//std::cout << "Ylabel ypos: " << ypos << std::endl;
 					/*QPointF childYPos = QPointF(xpos, ypos);
 					childYLabel->setPos(childYPos);
 					QPointF childYCenter = childYLabel->sceneBoundingRect().center();

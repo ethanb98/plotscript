@@ -519,7 +519,6 @@ Expression Expression::handle_discrete(Environment & env) {
 		ypos *= -1;
 		// push back for line from 0 to point
 		tempLine1.push_back(Expression(Atom(xpos)));
-		std::cout << negYMinTemp << std::endl;
 		if (0 > negYMinTemp) {
 			//negYMinTemp *= -1;
 			tempLine1.push_back(Expression(Atom(negYMinTemp * -1)));
