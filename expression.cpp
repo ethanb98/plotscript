@@ -656,65 +656,6 @@ Expression Expression::handle_discrete(Environment & env) {
 		Results.push_back(Expression((*h).m_tail[1].head().asString()));
 	}
 
-	// Point 1 created and evaluated
-	// (make-point -10 10)
-	/*std::vector<Expression> point1;
-	point1.push_back(xMinPos); // Push back the point values
-	point1.push_back(yMaxPos);
-	Expression point1pos = Expression(pointpos, point1).eval(env); // Eval the point
-
-	// Line 1 created and evaluated
-	// (make-line (make-point -10 0) (make-point -10 10))
-	std::vector<Expression> line1;
-	std::vector<Expression> line1p1;
-	std::vector<Expression> line1p2;
-
-	line1p1.push_back(xMinPos); // Push back the point 1 values
-	line1p1.push_back(origPos);
-
-	line1p2.push_back(xMinPos); // Push back the point 2 values
-	line1p2.push_back(yMaxPos);
-
-	line1.push_back(Expression(pointpos, line1p1)); // Push back the line of points
-	line1.push_back(Expression(pointpos, line1p2));
-	Expression line1pos = Expression(linepos, line1).eval(env); // Eval the line
-
-	// Point 2 created and evaluated
-	// (make-point 10 -10)
-	std::vector<Expression> point2;
-	point2.push_back(xMaxPos); // Push back the point values
-	point2.push_back(yMinPos);
-	Expression point2pos = Expression(pointpos, point2).eval(env); // Eval the point
-
-	// Line 2 created and evaluated
-	// (make-line (make-point 10 0) (make-point 10 -10))
-	std::vector<Expression> line2;
-	std::vector<Expression> line2p1;
-	std::vector<Expression> line2p2;
-	line2p1.push_back(xMaxPos); // Push back the point 1 values
-	line2p1.push_back(origPos);
-	line2p2.push_back(xMaxPos); // Push back the point 2 values
-	line2p2.push_back(yMinPos);
-	line2.push_back(Expression(pointpos, line2p1)); // Push back the line of points
-	line2.push_back(Expression(pointpos, line2p2));
-	Expression line2pos = Expression(linepos, line2).eval(env); // Eval the line*/
-
-	
-
-	// Push all the necessary expressions onto the result
-	// vector of expressions
-	//std::vector<Expression> result;
-	/*result.push_back(point1pos);
-	result.push_back(line1pos);
-	result.push_back(point2pos);
-	result.push_back(line2pos);
-	Results.push_back(line3pos);
-	Results.push_back(line4pos);
-	Results.push_back(line5pos);
-	Results.push_back(line6pos);
-	Results.push_back(line7pos);
-	Results.push_back(line8pos);*/
-
 	// Returns the vector of expressions as an expression
 	/*Expression FinalResults = Expression(Results);
 	FinalResults.head().setDiscrete();

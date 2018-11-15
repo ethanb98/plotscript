@@ -61,15 +61,10 @@ void OutputWidget::receiveString(QString str) {
 					double rot = exp.textRotReq();
 					rot = rot * 180 / M_PI;
 
-
 					QString text = QString::fromStdString(exp.transferString().substr(2, (exp.transferString().length() - 4)));
 					QGraphicsTextItem *childText = childScene->addText(text);
 					
-					
 					childText->setFont(font);
-					//QRectF childRect = childText->sceneBoundingRect();
-					//QPointF childCenter = childText->sceneBoundingRect().center();
-					//childText->setTransformOriginPoint(childCenter);
 					QRectF childRect = childText->sceneBoundingRect();
 					QPointF childPos = QPointF(x - childRect.width() / 2, y - childRect.height() / 2);
 					childText->setPos(childPos);
@@ -77,10 +72,6 @@ void OutputWidget::receiveString(QString str) {
 					childText->setTransformOriginPoint(childCenter);
 					childText->setScale(scale);
 					childText->setRotation(rot);
-					/*x = x - childRect.width() / 2;
-					y = y - childRect.height() / 2;
-					childText->setPos(x, y);*/
-					//childText->boundingRect().moveCenter(QPointF(x, y));
 				}
 				else {
 					childScene->clear();
@@ -201,6 +192,7 @@ void OutputWidget::listCap(Expression exp) {
 				font.setStyleHint(QFont::TypeWriter);
 				font.setPointSize(1);
 				
+				// change the number received (radians) and change to degrees
 				Expression newExp = (*e).textReq();
 				double x = newExp.pointTail0();
 				double y = newExp.pointTail1();
@@ -212,8 +204,8 @@ void OutputWidget::listCap(Expression exp) {
 				QString text = QString::fromStdString((*e).transferString().substr(2, ((*e).transferString().length() - 4)));
 				QGraphicsTextItem *childText = childScene->addText(text);
 				childText->setFont(font);
-				//QPointF childCenter = childText->sceneBoundingRect().center();
-				//childText->setTransformOriginPoint(childCenter);
+
+				// Draw the text in the correct location
 				QRectF childRect = childText->sceneBoundingRect();
 				QPointF childPos = QPointF(x - childRect.width() / 2, y - childRect.height() / 2);
 				childText->setPos(childPos);
@@ -221,10 +213,6 @@ void OutputWidget::listCap(Expression exp) {
 				childText->setTransformOriginPoint(childCenter);
 				childText->setScale(scale);
 				childText->setRotation(rot);
-				/*x = x - childRect.width() / 2;
-				y = y - childRect.height() / 2;
-				childText->setPos(x, y);*/
-				//childText->boundingRect().moveCenter(QPointF(x, y));
 			}
 			else if (exp.head().isDiscrete()) {
 				//std::cout << "Back in Discrete" << std::endl;
@@ -247,17 +235,6 @@ void OutputWidget::listCap(Expression exp) {
 				auto font = QFont("Monospace");
 				font.setStyleHint(QFont::TypeWriter);
 				font.setPointSize(1);
-				// static int count = 0;				
-				/*for (auto & drawFunc : exp.getTail()) {
-					Expression Function = drawFunc.req();
-					if (Function.head().isNone()) {
-						return;
-					}
-					std::cout << "Im drawing" << std::endl;
-					std::cout << "Count: " << count << std::endl;
-					listCap(drawFunc);
-					count++;
-				}*/
 
 				Expression Function = (*e).req();
 				if (Function.head().isNone()) {
@@ -393,11 +370,6 @@ void OutputWidget::listCap(Expression exp) {
 					//std::cout << "Ylabel xpos: " << xpos << std::endl;
 					ypos = ((ymax + ymin) / 2) - (childYLabel->boundingRect().height() / 2);
 					//std::cout << "Ylabel ypos: " << ypos << std::endl;
-					/*QPointF childYPos = QPointF(xpos, ypos);
-					childYLabel->setPos(childYPos);
-					QPointF childYCenter = childYLabel->sceneBoundingRect().center();
-					childYLabel->setTransformOriginPoint(childYCenter);
-					childYLabel->setRotation(-90);*/
 					childYLabel->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 					i = 0;

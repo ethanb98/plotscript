@@ -8,6 +8,8 @@ private slots:
 
   void initTestCase();
   void testDiscretePlotLayout();
+  void testSingPoint();
+  void testHorPoint();
 
   // TODO: implement additional tests here
 private:
@@ -102,6 +104,72 @@ int intersectsLine(QGraphicsScene * scene, QPointF center, qreal radius) {
 
 	return numlines;
 }
+
+// MIlestone 2 Test for single point
+void NotebookTest::testSingPoint() {
+	std::string program = "(set-property \"size\" 20 (make-point 0 0))";
+	inputWidget->setPlainText(QString::fromStdString(program));
+	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "Could not find QGraphicsView as child of outputWidget (testSingPoint)");
+
+	auto scene = view->scene();
+
+	// First check total number of items
+	// 1 point = 1;
+	auto items = scene->items();
+	QCOMPARE(items.size(), 1);
+
+	// make them all selectable
+	foreach(auto item, items) {
+		item->setFlag(QGraphicsItem::ItemIsSelectable);
+	}
+
+	// check the point at (0, 0)
+	QCOMPARE(findPoints(scene, QPointF(0, 0), 20), 1);
+}
+
+// Milestone 2 Test for multiple points of different sizes 
+void NotebookTest::testHorPoint() {
+	std::string program = "(list (set-property \"size\" 1 (make-point 0 0)) (set-property \"size\" 2 (make-point 4 0)) (set-property \"size\" 4 (make-point 8 0)) (set-property \"size\" 8 (make-point 16 0)) (set-property \"size\" 16 (make-point 32 0)) (set-property \"size\" 32 (make-point 64 0)))";
+	inputWidget->setPlainText(QString::fromStdString(program));
+	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier);
+	
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "Could not find QGraphicsView as child of outputWidget (testHorPoint)");
+
+	auto scene = view->scene();
+
+	// first check total number of items
+	// 6 points = 6 items
+	auto items = scene->items();
+	QCOMPARE(items.size(), 6);
+
+	// make them all selectable
+	foreach(auto item, items) {
+		item->setFlag(QGraphicsItem::ItemIsSelectable);
+	}
+
+	// check the point at (0, 0)
+	QCOMPARE(findPoints(scene, QPointF(0, 0), 1), 1);
+
+	// check the point at (4, 0)
+	QCOMPARE(findPoints(scene, QPointF(4, 0), 2), 1);
+
+	// check the point at (8, 0)
+	QCOMPARE(findPoints(scene, QPointF(8, 0), 4), 1);
+
+	// check the point at (16, 0)
+	QCOMPARE(findPoints(scene, QPointF(16, 0), 8), 1);
+
+	// check the point at (32, 0)
+	QCOMPARE(findPoints(scene, QPointF(32, 0), 16), 1);
+
+	// check the point at (64, 0)
+	QCOMPARE(findPoints(scene, QPointF(64, 0), 32), 1);
+}
+
 
 void NotebookTest::testDiscretePlotLayout() {
 
