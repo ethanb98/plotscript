@@ -516,10 +516,14 @@ Expression Expression::handle_discrete(Environment & env) {
 		Results.push_back(Expression(pointatom, tempPoint).eval(env));
 		tempPoint.clear();
 
+		ypos *= -1;
 		// push back for line from 0 to point
 		tempLine1.push_back(Expression(Atom(xpos)));
+		std::cout << negYMinTemp << std::endl;
 		if (0 > negYMinTemp) {
-			tempLine1.push_back(Expression(Atom(negYMinTemp)));
+			//negYMinTemp *= -1;
+			tempLine1.push_back(Expression(Atom(negYMinTemp * -1)));
+			//negYMinTemp *= -1;
 		}
 		else {
 			tempLine1.push_back(Expression(Atom(xax)));
@@ -546,10 +550,10 @@ Expression Expression::handle_discrete(Environment & env) {
 		std::vector<Expression> line3p2;
 		// create point (make-point 0 10)
 		line3p1.push_back(origPos); // Push back the point 1 values
-		line3p1.push_back(negYMaxPos);
+		line3p1.push_back(yMaxPos);
 		// create point (make-point 0 -10)
 		line3p2.push_back(origPos); // Push back the point 2 values
-		line3p2.push_back(negYMinPos);
+		line3p2.push_back(yMinPos);
 		// push back the points
 		line3.push_back(Expression(pointatom, line3p1)); // Push back the line of points
 		line3.push_back(Expression(pointatom, line3p2));
@@ -585,9 +589,9 @@ Expression Expression::handle_discrete(Environment & env) {
 	std::vector<Expression> line5p1;
 	std::vector<Expression> line5p2;
 	line5p1.push_back(xMinPos); // Push back the point 1 values
-	line5p1.push_back(negYMaxPos);
+	line5p1.push_back(yMaxPos);
 	line5p2.push_back(xMaxPos); // Push back the point 2 values
-	line5p2.push_back(negYMaxPos);
+	line5p2.push_back(yMaxPos);
 	line5.push_back(Expression(pointatom, line5p1)); // Push back the line of points
 	line5.push_back(Expression(pointatom, line5p2));
 	Expression line5pos = Expression(lineatom, line5).eval(env); // Eval the line
@@ -598,9 +602,9 @@ Expression Expression::handle_discrete(Environment & env) {
 	std::vector<Expression> line6p1;
 	std::vector<Expression> line6p2;
 	line6p1.push_back(xMinPos); // Push back the point 1 values
-	line6p1.push_back(negYMinPos);
+	line6p1.push_back(yMinPos);
 	line6p2.push_back(xMaxPos); // Push back the point 2 values
-	line6p2.push_back(negYMinPos);
+	line6p2.push_back(yMinPos);
 	line6.push_back(Expression(pointatom, line6p1)); // Push back the line of points
 	line6.push_back(Expression(pointatom, line6p2));
 	Expression line6pos = Expression(lineatom, line6).eval(env); // Eval the line
@@ -611,9 +615,9 @@ Expression Expression::handle_discrete(Environment & env) {
 	std::vector<Expression> line7p1;
 	std::vector<Expression> line7p2;
 	line7p1.push_back(xMinPos); // Push back the point 1 values
-	line7p1.push_back(negYMaxPos);
+	line7p1.push_back(yMaxPos);
 	line7p2.push_back(xMinPos); // Push back the point 2 values
-	line7p2.push_back(negYMinPos);
+	line7p2.push_back(yMinPos);
 	line7.push_back(Expression(pointatom, line7p1)); // Push back the line of points
 	line7.push_back(Expression(pointatom, line7p2));
 	Expression line7pos = Expression(lineatom, line7).eval(env); // Eval the line
@@ -624,9 +628,9 @@ Expression Expression::handle_discrete(Environment & env) {
 	std::vector<Expression> line8p1;
 	std::vector<Expression> line8p2;
 	line8p1.push_back(xMaxPos); // Push back the point 1 values
-	line8p1.push_back(negYMaxPos);
+	line8p1.push_back(yMaxPos);
 	line8p2.push_back(xMaxPos); // Push back the point 2 values
-	line8p2.push_back(negYMinPos);
+	line8p2.push_back(yMinPos);
 	line8.push_back(Expression(pointatom, line8p1)); // Push back the line of points
 	line8.push_back(Expression(pointatom, line8p2));
 	Expression line8pos = Expression(lineatom, line8).eval(env); // Eval the line

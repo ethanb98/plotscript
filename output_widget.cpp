@@ -171,17 +171,21 @@ void OutputWidget::listCap(Expression exp) {
 			else if ((*e).isLine()) {
 				std::cout << "Making list line" << std::endl;
 				double thicc = 0;
+				double y1 = 0;
+				double y2 = 0;
 				if (exp.head().isDiscrete()) {
 					thicc = 0;
+					y1 = (*e).lineTail0y() * -1;
+					y2 = (*e).lineTail1y() * -1;
 				}
 				else {
 					Expression Thicc = (*e).req();
 					thicc = Thicc.head().asNumber();
+					y1 = (*e).lineTail0y();
+					y2 = (*e).lineTail1y();
 				}
 				double x1 = (*e).lineTail0x();
 				double x2 = (*e).lineTail1x();
-				double y1 = (*e).lineTail0y();
-				double y2 = (*e).lineTail1y();
 				QPen pen = QPen(Qt::black);
 				if (exp.head().isDiscrete()) {
 					pen.setWidth(0);
@@ -305,8 +309,8 @@ void OutputWidget::listCap(Expression exp) {
 					
 					xmin *= xscale;
 					xmax *= xscale;
-					ymin *= yscale;
-					ymax *= yscale;
+					ymin = ymin * yscale * -1;
+					ymax = ymax * yscale * -1;
 					std::cout << "xmin: " << xmin << std::endl;
 					std::cout << "xmax: " << xmax << std::endl;
 					std::cout << "ymin: " << ymin << std::endl;
@@ -330,7 +334,7 @@ void OutputWidget::listCap(Expression exp) {
 					childxmin->setFont(font);
 					xpos = xmin - (childxmin->boundingRect().width() / 2);
 					std::cout << "xmin xpos: " << xpos << std::endl;
-					ypos = (ymax + C) - (childxmin->boundingRect().height() / 2);
+					ypos = (ymin + C) - (childxmin->boundingRect().height() / 2);
 					std::cout << "xmin ypos: " << ypos << std::endl;
 					childxmin->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
@@ -338,7 +342,7 @@ void OutputWidget::listCap(Expression exp) {
 					childxmax->setFont(font);
 					xpos = xmax - (childxmax->boundingRect().width() / 2);
 					std::cout << "xmax xpos: " << xpos << std::endl;
-					ypos = (ymax + C) - (childxmax->boundingRect().height() / 2);
+					ypos = (ymin + C) - (childxmax->boundingRect().height() / 2);
 					std::cout << "xmax ypos: " << ypos << std::endl;
 					childxmax->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
@@ -346,7 +350,7 @@ void OutputWidget::listCap(Expression exp) {
 					childymin->setFont(font);
 					xpos = (xmin - D) - (childymin->boundingRect().width() / 2);
 					std::cout << "ymin xpos: " << xpos << std::endl;
-					ypos = ymax - (childymin->boundingRect().height() / 2);
+					ypos = ymin - (childymin->boundingRect().height() / 2);
 					std::cout << "ymin ypos: " << ypos << std::endl;
 					childymin->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
@@ -354,7 +358,7 @@ void OutputWidget::listCap(Expression exp) {
 					childymax->setFont(font);
 					xpos = (xmin - D) - (childymax->boundingRect().width() / 2);
 					std::cout << "ymax xpos: " << xpos << std::endl;
-					ypos = ymin - (childymax->boundingRect().height() / 2);
+					ypos = ymax - (childymax->boundingRect().height() / 2);
 					std::cout << "ymax ypos: " << ypos << std::endl;
 					childymax->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
@@ -364,7 +368,7 @@ void OutputWidget::listCap(Expression exp) {
 					std::cout << "Pre-Title xpos: " << xpos << std::endl;
 					xpos = ((xmax + xmin) / 2) - (childTitle->boundingRect().width() / 2);
 					std::cout << "Title xpos: " << xpos << std::endl;
-					ypos = (ymin - A) - (childTitle->boundingRect().height() / 2);
+					ypos = (ymax - A) - (childTitle->boundingRect().height() / 2);
 					std::cout << "Title ypos: " << ypos << std::endl;
 					childTitle->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
@@ -374,7 +378,7 @@ void OutputWidget::listCap(Expression exp) {
 					//QRectF childRectXLab = childXLabel->sceneBoundingRect();
 					xpos = ((xmax + xmin) / 2) - (childXLabel->boundingRect().width() / 2);
 					std::cout << "Xlabel xpos: " << xpos << std::endl;
-					ypos = (ymax + A) - (childXLabel->boundingRect().height() / 2);
+					ypos = (ymin + A) - (childXLabel->boundingRect().height() / 2);
 					std::cout << "Xlabel ypos: " << ypos << std::endl;
 					childXLabel->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
@@ -387,8 +391,8 @@ void OutputWidget::listCap(Expression exp) {
 					//QRectF childRectYLab = childYLabel->sceneBoundingRect();
 					xpos = (xmin - B) - (childYLabel->boundingRect().width() / 2);
 					std::cout << "Ylabel xpos: " << xpos << std::endl;
-					ypos = ((ymax + ymin) / 2) + (childYLabel->boundingRect().height() / 2);
-					ypos *= -1;
+					ypos = ((ymax + ymin) / 2) - (childYLabel->boundingRect().height() / 2);
+					//ypos *= -1;
 					std::cout << "Ylabel ypos: " << ypos << std::endl;
 					/*QPointF childYPos = QPointF(xpos, ypos);
 					childYLabel->setPos(childYPos);
