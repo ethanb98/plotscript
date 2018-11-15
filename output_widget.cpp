@@ -52,7 +52,8 @@ void OutputWidget::receiveString(QString str) {
 					Expression newExp = exp.textReq();
 					double x = newExp.pointTail0();
 					double y = newExp.pointTail1();
-					double scale = exp.req();
+					Expression scaler = exp.req();
+					double scale = scaler.head().asNumber();
 					double rot = exp.textRotReq();
 					rot = rot * 180 / M_PI;
 
@@ -62,15 +63,19 @@ void OutputWidget::receiveString(QString str) {
 					
 					
 					childText->setFont(font);
-					childText->setScale(scale);
-					childText->setRotation(rot);
-					QRectF childRect = childText->sceneBoundingRect();
+					//QRectF childRect = childText->sceneBoundingRect();
 					//QPointF childCenter = childText->sceneBoundingRect().center();
 					//childText->setTransformOriginPoint(childCenter);
-
-					x = x - childRect.width() / 2;
+					QRectF childRect = childText->sceneBoundingRect();
+					QPointF childPos = QPointF(x - childRect.width() / 2, y - childRect.height() / 2);
+					childText->setPos(childPos);
+					QPointF childCenter = childText->sceneBoundingRect().center();
+					childText->setTransformOriginPoint(childCenter);
+					childText->setScale(scale);
+					childText->setRotation(rot);
+					/*x = x - childRect.width() / 2;
 					y = y - childRect.height() / 2;
-					childText->setPos(x, y);
+					childText->setPos(x, y);*/
 					//childText->boundingRect().moveCenter(QPointF(x, y));
 				}
 				else {
@@ -96,21 +101,40 @@ void OutputWidget::listCap(Expression exp) {
 	const double B = 3;
 	const double C = 2;
 	const double D = 2;
-	/*const double P = 0.5;
-	const double orig = 0;*/
+	const double P = 0.5;
+	//const double orig = 0;
 	clearScreen = false;
 	if (exp.isPoint()) {
+		std::cout << "Printing Circle" << std::endl;
 		childScene->clear();
-		double size = exp.req();
-		double x = (exp.pointTail0() - (size / 2));
-		double y = (exp.pointTail1() - (size / 2));
-		QPen pen = QPen(Qt::black);
+		double size = 0;
+		if (exp.head().isDiscrete()) {
+			size = P;
+		}
+		else {
+			Expression require = exp.req();
+			size = require.head().asNumber();
+		}
+		double x = exp.pointTail0();
+		double y = exp.pointTail1();
+
+		QPen pen = QPen(Qt::NoPen);
 		QBrush brush = QBrush(Qt::black);
-		childScene->QGraphicsScene::addEllipse(x, y, size, size, pen, brush);
+		QRectF val = QRectF(x, y, size, size);
+		val.moveCenter(QPointF(x, y));
+		childScene->addEllipse(val, pen, brush);
 	}
 	else if (exp.isLine()) {
+		std::cout << "Printing Line" << std::endl;
 		childScene->clear();
-		double thicc = exp.req();
+		double thicc = 0;
+		if (exp.head().isDiscrete()) {
+			thicc = 0;
+		}
+		else {
+			Expression thickness = exp.req();
+			thicc = thickness.head().asNumber();
+		}
 		double x1 = exp.lineTail0x();
 		double y1 = exp.lineTail0y();
 		double x2 = exp.lineTail1x();
@@ -123,15 +147,33 @@ void OutputWidget::listCap(Expression exp) {
 		childScene->clear();
 		for (auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); e++) {
 			if ((*e).isPoint()) {
-				double size = (*e).req();
-				double x = ((*e).pointTail0() - (size / 2));
-				double y = ((*e).pointTail1() - (size / 2));
-				QPen pen = QPen(Qt::black);
+				std::cout << "Making list circle" << std::endl;
+				double size = 0;
+				if (exp.head().isDiscrete()) {
+					size = P;
+				}
+				else {
+					Expression Sizer = (*e).req();
+					size = Sizer.head().asNumber();
+				}
+				double x = (*e).pointTail0();
+				double y = (*e).pointTail1();
+				QPen pen = QPen(Qt::NoPen);
 				QBrush brush = QBrush(Qt::black);
-				childScene->QGraphicsScene::addEllipse(x, y, size, size, pen, brush);
+				QRectF val = QRectF(x, y, size, size);
+				val.moveCenter(QPointF(x, y));
+				childScene->addEllipse(val, pen, brush);
 			}
 			else if ((*e).isLine()) {
-				double thicc = (*e).req();
+				std::cout << "Making list line" << std::endl;
+				double thicc = 0;
+				if (exp.head().isDiscrete()) {
+					thicc = 0;
+				}
+				else {
+					Expression Thicc = (*e).req();
+					thicc = Thicc.head().asNumber();
+				}
 				double x1 = (*e).lineTail0x();
 				double x2 = (*e).lineTail1x();
 				double y1 = (*e).lineTail0y();
@@ -146,6 +188,7 @@ void OutputWidget::listCap(Expression exp) {
 				childScene->QGraphicsScene::addLine(x1, y1, x2, y2, pen);
 			}
 			else if ((*e).isText()) {
+				std::cout << "Making list Text" << std::endl;
 				auto font = QFont("Monospace");
 				font.setStyleHint(QFont::TypeWriter);
 				font.setPointSize(1);
@@ -153,24 +196,30 @@ void OutputWidget::listCap(Expression exp) {
 				Expression newExp = (*e).textReq();
 				double x = newExp.pointTail0();
 				double y = newExp.pointTail1();
-				double scale = (*e).req();
+				Expression Scale = (*e).req();
+				double scale = Scale.head().asNumber();
 				double rot = (*e).textRotReq();
 				rot = rot * 180 / M_PI;
 
 				QString text = QString::fromStdString((*e).transferString().substr(2, ((*e).transferString().length() - 4)));
 				QGraphicsTextItem *childText = childScene->addText(text);
 				childText->setFont(font);
-				childText->setScale(scale);
-				childText->setRotation(rot);
 				//QPointF childCenter = childText->sceneBoundingRect().center();
 				//childText->setTransformOriginPoint(childCenter);
 				QRectF childRect = childText->sceneBoundingRect();
-				x = x - childRect.width() / 2;
+				QPointF childPos = QPointF(x - childRect.width() / 2, y - childRect.height() / 2);
+				childText->setPos(childPos);
+				QPointF childCenter = childText->sceneBoundingRect().center();
+				childText->setTransformOriginPoint(childCenter);
+				childText->setScale(scale);
+				childText->setRotation(rot);
+				/*x = x - childRect.width() / 2;
 				y = y - childRect.height() / 2;
-				childText->setPos(x, y);
+				childText->setPos(x, y);*/
 				//childText->boundingRect().moveCenter(QPointF(x, y));
 			}
 			else if (exp.head().isDiscrete()) {
+				std::cout << "Back in Discrete" << std::endl;
 				static int i = 0;
 				static double xmin = 0;
 				static double xmax = 0;
@@ -190,14 +239,31 @@ void OutputWidget::listCap(Expression exp) {
 				auto font = QFont("Monospace");
 				font.setStyleHint(QFont::TypeWriter);
 				font.setPointSize(1);
-				if (i == 0) {
+				// static int count = 0;				
+				/*for (auto & drawFunc : exp.getTail()) {
+					Expression Function = drawFunc.req();
+					if (Function.head().isNone()) {
+						return;
+					}
+					std::cout << "Im drawing" << std::endl;
+					std::cout << "Count: " << count << std::endl;
+					listCap(drawFunc);
+					count++;
+				}*/
+
+				Expression Function = (*e).req();
+				if (Function.head().isNone()) {
+					i++;
+					std::cout << i << std::endl;
+				}
+
+				if (i == 1) {
 					// xmin
 					XMIN = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					xmin = std::stod(XMIN);
 					std::cout << "xmin: " << xmin << std::endl;
-					i++;
 				}
-				else if (i == 1) {
+				else if (i == 2) {
 					// xmax
 					XMAX = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					xmax = std::stod(XMAX);
@@ -205,16 +271,14 @@ void OutputWidget::listCap(Expression exp) {
 					xscale = N / (xmax - xmin);
 					std::cout << "xmax: " << xmax << std::endl;
 					std::cout << "xscale: " << xscale << std::endl;
-					i++;
 				}
-				else if (i == 2) {
+				else if (i == 3) {
 					// ymin
 					YMIN = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					ymin = std::stod(YMIN);
 					std::cout << "ymin: " << ymin << std::endl;
-					i++;
 				}
-				else if (i == 3) {
+				else if (i == 4) {
 					// ymax
 					YMAX = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					ymax = std::stod(YMAX);
@@ -222,19 +286,16 @@ void OutputWidget::listCap(Expression exp) {
 					yscale = N / (ymax - ymin);
 					std::cout << "ymax: " << ymax << std::endl;
 					std::cout << "yscale: " << yscale << std::endl;
-					i++;
-				}
-				else if (i == 4) {
-					// title
-					TITLE = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
-					i++;
 				}
 				else if (i == 5) {
-					// x label
-					XLABEL = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
-					i++;
+					// title
+					TITLE = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 				}
 				else if (i == 6) {
+					// x label
+					XLABEL = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
+				}
+				else if (i == 7) {
 					//y label
 					YLABEL = (*e).head().asString().substr(1, (*e).head().asString().length() - 2);
 					
@@ -316,33 +377,23 @@ void OutputWidget::listCap(Expression exp) {
 
 
 					childYLabel->setFont(font);
-					//QRectF childRectYLab = childYLabel->sceneBoundingRect();
-					xpos = (xmin - B) - (childYLabel->boundingRect().height() / 2);
-					std::cout << "Ylabel xpos: " << xpos << std::endl;
-					ypos = ((ymax + ymin) / 2) + (childYLabel->boundingRect().width() / 2);
-					std::cout << "Ylabel ypos: " << ypos << std::endl;
+					childYLabel->setTransformOriginPoint(childYLabel->boundingRect().center());
 					childYLabel->setRotation(-90);
+
+					//QRectF childRectYLab = childYLabel->sceneBoundingRect();
+					xpos = (xmin - B) - (childYLabel->boundingRect().width() / 2);
+					std::cout << "Ylabel xpos: " << xpos << std::endl;
+					ypos = ((ymax + ymin) / 2) + (childYLabel->boundingRect().height() / 2);
+					ypos *= -1;
+					std::cout << "Ylabel ypos: " << ypos << std::endl;
+					/*QPointF childYPos = QPointF(xpos, ypos);
+					childYLabel->setPos(childYPos);
+					QPointF childYCenter = childYLabel->sceneBoundingRect().center();
+					childYLabel->setTransformOriginPoint(childYCenter);
+					childYLabel->setRotation(-90);*/
 					childYLabel->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
-
-
-					i = 0;
-					xmin = 0;
-					xmax = 0;
-					ymin = 0;
-					ymax = 0;
-					xscale = 0;
-					yscale = 0;
-					xpos = 0;
-					ypos = 0;
-					XMIN = "";
-					XMAX = "";
-					YMIN = "";
-					YMAX = "";
-					TITLE = "";
-					XLABEL = "";
-					YLABEL = "";
-
+				
 				}
 				childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 				childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

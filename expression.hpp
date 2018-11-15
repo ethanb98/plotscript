@@ -95,13 +95,15 @@ public:
 
   double pointTail0() const noexcept;
   double pointTail1() const noexcept;
-  double req() const noexcept;
+  Expression req() const noexcept;
   Expression textReq() const noexcept;
   double textRotReq() const noexcept;
   double lineTail0x() const noexcept;
   double lineTail0y() const noexcept;
   double lineTail1x() const noexcept;
   double lineTail1y() const noexcept;
+
+  std::vector<Expression> getTail() const noexcept;
 
 private:
 
