@@ -713,10 +713,10 @@ Expression Expression::handle_discrete(Environment & env) {
 	Results.push_back(line8pos);*/
 
 	// Returns the vector of expressions as an expression
-	Expression FinalResults = Expression(Results);
+	/*Expression FinalResults = Expression(Results);
 	FinalResults.head().setDiscrete();
-	return FinalResults;
-	//return Expression(result);
+	return FinalResults;*/
+	return Expression(Results);
 }
 
 
