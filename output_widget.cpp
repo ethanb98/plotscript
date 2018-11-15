@@ -40,6 +40,10 @@ void OutputWidget::receiveString(QString str) {
 				childScene->clear();
 			}
 			else if (exp.head().isList() || exp.head().isDiscrete()) {
+				if (exp.getTail().size() >= 10)
+				{
+					exp.head().setDiscrete();
+				}
 				listCap(exp);
 			}
 			else {
@@ -393,7 +397,8 @@ void OutputWidget::listCap(Expression exp) {
 					childYLabel->setRotation(-90);*/
 					childYLabel->setPos(xpos, ypos);
 					childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
-				
+					i = 0;
+					return;
 				}
 				childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
 				childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
