@@ -46,9 +46,6 @@ private:
   // the AST
   Expression ast;
 
-  std::unique_lock<std::mutex> lock(mutable std::mutex msg_mu);
-
-
 };
 
 #endif

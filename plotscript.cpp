@@ -124,7 +124,7 @@ void repl(Interpreter interp){
 		oq->wait_and_pop(out);
 
 		if (out.second.empty()) {
-			std::cout << out.first.head().asSymbol() << " ";
+			std::cout << out.first << " ";
 		}
 		else {
 			std::cout << out.second << " ";
