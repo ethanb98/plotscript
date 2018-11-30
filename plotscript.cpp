@@ -2,10 +2,51 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <utility>
 
 #include "startup_config.hpp"
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
+#include "message_queue.hpp"
+
+typedef MsgSafeQueue<std::string> inputQueue;
+typedef std::pair<Expression, std::string> output;
+typedef MsgSafeQueue<output> outputQueue;
+
+
+class Consumer {
+public:
+	Consumer(inputQueue *messageQueueIn, outputQueue *messageQueueOut) {
+		mqi = messageQueueIn;
+		mqo = messageQueueOut;
+	}
+
+	void operator()(Interpreter interp) const {
+		std::string temp;
+		Expression exp;
+		mqi->wait_and_pop(temp);
+		std::string error;
+		std::istringstream expression(temp);
+		if (!interp.parseStream(expression)) {
+			error = "Invalid Expression. Could not parse.";
+		}
+		else {
+			try {
+				exp = interp.evaluate();
+				//std::cout << exp << std::endl;
+			}
+			catch (const SemanticError & ex) {
+				error = ex.what();
+			}
+		}
+		output out = std::make_pair(exp, error);
+		mqo->push(out);
+	}
+
+private:
+	inputQueue * mqi;
+	outputQueue * mqo;
+};
 
 void prompt(){
   std::cout << "\nplotscript> ";
@@ -65,28 +106,35 @@ int eval_from_command(std::string argexp, Interpreter interp){
 
 // A REPL is a repeated read-eval-print loop
 void repl(Interpreter interp){
-  while(!std::cin.eof()){
-    
-    prompt();
-    std::string line = readline();
-    
-    if(line.empty()) continue;
+	inputQueue *iq = new inputQueue;
+	outputQueue *oq = new outputQueue;
+	output out;
 
-    std::istringstream expression(line);
+	Consumer cons(iq, oq);
+	std::thread t1(cons, interp);
+
+	while(!std::cin.eof()){
     
-    if(!interp.parseStream(expression)){
-      error("Invalid Expression. Could not parse.");
-    }
-    else{
-      try{
-	Expression exp = interp.evaluate();
-	std::cout << exp << std::endl;
-      }
-      catch(const SemanticError & ex){
-	std::cerr << ex.what() << std::endl;
-      }
-    }
-  }
+		prompt();
+		std::string line = readline();
+    
+		if(line.empty()) continue;
+
+		iq->push(line);
+		oq->wait_and_pop(out);
+
+		if (out.second.empty()) {
+			std::cout << out.first.head().asSymbol() << " ";
+		}
+		else {
+			std::cout << out.second << " ";
+		}
+	}
+
+	t1.join();
+
+	delete iq;
+	delete oq;
 }
 
 int main(int argc, char *argv[])
