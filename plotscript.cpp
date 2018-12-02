@@ -165,6 +165,10 @@ void repl(Interpreter interp){
 		}
 
 		if (line.empty()) continue;
+		if (!threadRun) {
+			error("Thread is stopped. Cannot output command");
+			continue;
+		}
 		iq->push(line);
 		oq->wait_and_pop(out);
 
