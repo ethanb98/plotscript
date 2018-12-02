@@ -1,4 +1,45 @@
+#include <utility>
+
 #include "output_widget.hpp"
+#include "message_queue.hpp"
+
+typedef MsgSafeQueue<std::string> inputQueue;
+typedef std::pair<Expression, std::string> output;
+typedef MsgSafeQueue<output> outputQueue;
+
+class Consumer {
+public:
+	Consumer(inputQueue *messageQueueIn, outputQueue *messageQueueOut) {
+		mqi = messageQueueIn;
+		mqo = messageQueueOut;
+	}
+
+	void operator()(Interpreter interp) const {
+		std::string temp;
+		Expression exp;
+		mqi->wait_and_pop(temp);
+		std::string error;
+		std::istringstream expression(temp);
+		if (!interp.parseStream(expression)) {
+			error = "Invalid Expression. Could not parse.";
+		}
+		else {
+			try {
+				exp = interp.evaluate();
+				//std::cout << exp << std::endl;
+			}
+			catch (const SemanticError & ex) {
+				error = ex.what();
+			}
+		}
+		output out = std::make_pair(exp, error);
+		mqo->push(out);
+	}
+
+private:
+	inputQueue * mqi;
+	outputQueue * mqo;
+};
 
 OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 	setObjectName("output");

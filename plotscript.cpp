@@ -106,20 +106,62 @@ int eval_from_command(std::string argexp, Interpreter interp){
 
 // A REPL is a repeated read-eval-print loop
 void repl(Interpreter interp){
+	bool threadRun = true;
 	inputQueue *iq = new inputQueue;
 	outputQueue *oq = new outputQueue;
 	output out;
 
+	Interpreter newInterp = interp;
 	Consumer cons(iq, oq);
 	std::thread t1(cons, interp);
-
 	while(!std::cin.eof()){
     
 		prompt();
 		std::string line = readline();
-    
-		if(line.empty()) continue;
 
+		if (line == "%start") {
+			if (!threadRun) {
+				threadRun = true;
+				t1 = std::thread(cons, interp);
+			}
+			else {
+				error("Could not start the thread, already a thread running.");
+			}
+			continue;
+		}
+		
+		if (line == "%stop") {
+			if (threadRun) {
+				threadRun = false;
+				std::string str;
+				iq->push(str);
+				t1.join();
+				iq->try_pop(str);
+			}
+			else {
+				error("Could not stop the thread, already no thread running");
+			}
+			continue;
+		}
+		
+		if (line == "%reset") {
+			// If not stopped
+			if (threadRun) {
+				// Stop the code
+				std::string str;
+				iq->push(str);
+				t1.join();
+				iq->try_pop(str);
+			}
+			threadRun = true;
+			// Start the code
+			t1 = std::thread(cons, interp);
+			interp = newInterp;
+			continue;
+		}
+
+		if (line.empty()) continue;
+		std::cout << "" << std::endl;
 		iq->push(line);
 		oq->wait_and_pop(out);
 
@@ -132,7 +174,7 @@ void repl(Interpreter interp){
 	}
 
 	t1.join();
-
+	t1.~thread();
 	delete iq;
 	delete oq;
 }
