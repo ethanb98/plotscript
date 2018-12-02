@@ -166,7 +166,7 @@ void repl(Interpreter interp){
 
 		if (line.empty()) continue;
 		if (!threadRun) {
-			error("Thread is stopped. Cannot output command");
+			error("interpreter kernel not running");
 			continue;
 		}
 		iq->push(line);
