@@ -22,25 +22,29 @@ public:
 	}
 
 	void operator()(Interpreter interp) const {
-		std::string temp;
-		Expression exp;
-		mqi->wait_and_pop(temp);
-		std::string error;
-		std::istringstream expression(temp);
-		if (!interp.parseStream(expression)) {
-			error = "Invalid Expression. Could not parse.";
-		}
-		else {
-			try {
-				exp = interp.evaluate();
-				//std::cout << exp << std::endl;
+		while (1) {
+			std::string temp;
+			Expression exp;
+			mqi->wait_and_pop(temp);
+			if (temp.empty()) {
+				return;
 			}
-			catch (const SemanticError & ex) {
-				error = ex.what();
+			std::string error;
+			std::istringstream expression(temp);
+			if (!interp.parseStream(expression)) {
+				error = "Invalid Expression. Could not parse.";
 			}
+			else {
+				try {
+					exp = interp.evaluate();
+				}
+				catch (const SemanticError & ex) {
+					error = ex.what();
+				}
+			}
+			output out = std::make_pair(exp, error);
+			mqo->push(out);
 		}
-		output out = std::make_pair(exp, error);
-		mqo->push(out);
 	}
 
 private:
@@ -161,7 +165,6 @@ void repl(Interpreter interp){
 		}
 
 		if (line.empty()) continue;
-		std::cout << "" << std::endl;
 		iq->push(line);
 		oq->wait_and_pop(out);
 
@@ -174,7 +177,6 @@ void repl(Interpreter interp){
 	}
 
 	t1.join();
-	t1.~thread();
 	delete iq;
 	delete oq;
 }
