@@ -164,6 +164,17 @@ void repl(Interpreter interp){
 			continue;
 		}
 
+		if (line == "%exit") {
+			if (threadRun) {
+				threadRun = false;
+				std::string str;
+				iq->push(str);
+				t1.join();
+				iq->try_pop(str);
+			}
+			exit(EXIT_SUCCESS);
+		}
+
 		if (line.empty()) continue;
 		if (!threadRun) {
 			error("interpreter kernel not running");
