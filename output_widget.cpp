@@ -1,5 +1,3 @@
-#include <utility>
-
 #include "output_widget.hpp"
 #include "message_queue.hpp"
 
@@ -24,28 +22,28 @@ OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 	}
 	newInterp = interp;
 	cons = Consumer(iq, oq);
-	t1 = std::thread(cons, interp);
 	cons.setThreadRunTrue();
+	t1 = std::thread(cons, interp);
 }
 
 OutputWidget::~OutputWidget() {
-	if (cons.getThreadRun()) {
-		cons.setThreadRunFalse();
-		std::string st;
-		iq->push(st);
-		if (t1.joinable()) {
-			t1.join();
-		}
-		if (!iq->empty()) {
-			iq->try_pop(st);
-		}
+	std::string st;
+	iq->push(st);
+	if (t1.joinable()) {
+		t1.join();
+	}
+	if (!iq->empty()) {
+		iq->wait_and_pop(st);
 	}
 }
 
 void OutputWidget::start() {
+	//Interpreter interpnew;
+	Consumer cons1(iq, oq);
 	if (!cons.getThreadRun()) {
 		cons.setThreadRunTrue();
-		t1 = std::thread(cons, interp);
+		cons1.setThreadRunTrue();
+		t1 = std::thread(cons1, interp);
 	}
 	/*else {
 		childScene->clear();
@@ -66,7 +64,7 @@ void OutputWidget::stop() {
 			t1.join();
 		}
 		if (!iq->empty()) {
-			iq->try_pop(st);
+			iq->wait_and_pop(st);
 		}
 	}
 	/*else {
@@ -80,6 +78,7 @@ void OutputWidget::stop() {
 }
 
 void OutputWidget::reset() {
+	Consumer cons2(iq, oq);
 	// If not stopped
 	if (cons.getThreadRun()) {
 		// Stop the code
@@ -90,9 +89,11 @@ void OutputWidget::reset() {
 		}
 		iq->try_pop(str);
 	}
+	childScene->clear();
 	cons.setThreadRunTrue();
+	cons2.setThreadRunTrue();
 	// Start the code
-	t1 = std::thread(cons, interp);
+	t1 = std::thread(cons2, interp);
 	interp = newInterp;
 }
 

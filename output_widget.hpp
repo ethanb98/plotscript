@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <utility>
 
 #include "startup_config.hpp"
 #include "interpreter.hpp"
@@ -30,20 +31,21 @@ public:
 	}
 
 	Consumer(inputQueue *messageQueueIn, outputQueue *messageQueueOut) {
+		threadRun = true;
 		mqi = messageQueueIn;
 		mqo = messageQueueOut;
 	}
 
-	void operator()(Interpreter interp) {
+	void operator()(Interpreter interp) const{
 		while (1) {
 			std::string temp;
 			Expression exp;
 			mqi->wait_and_pop(temp);
+			if (temp.empty()) {
+				break;
+			}
 			std::string error;
 			std::istringstream expression(temp);
-			if (temp.empty()) {
-				return;
-			}
 			if (!interp.parseStream(expression)) {
 				error = "Invalid Expression. Could not parse.";
 			}
