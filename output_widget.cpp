@@ -3,44 +3,6 @@
 #include "output_widget.hpp"
 #include "message_queue.hpp"
 
-typedef MsgSafeQueue<std::string> inputQueue;
-typedef std::pair<Expression, std::string> output;
-typedef MsgSafeQueue<output> outputQueue;
-
-class Consumer {
-public:
-	Consumer(inputQueue *messageQueueIn, outputQueue *messageQueueOut) {
-		mqi = messageQueueIn;
-		mqo = messageQueueOut;
-	}
-
-	void operator()(Interpreter interp) const {
-		std::string temp;
-		Expression exp;
-		mqi->wait_and_pop(temp);
-		std::string error;
-		std::istringstream expression(temp);
-		if (!interp.parseStream(expression)) {
-			error = "Invalid Expression. Could not parse.";
-		}
-		else {
-			try {
-				exp = interp.evaluate();
-				//std::cout << exp << std::endl;
-			}
-			catch (const SemanticError & ex) {
-				error = ex.what();
-			}
-		}
-		output out = std::make_pair(exp, error);
-		mqo->push(out);
-	}
-
-private:
-	inputQueue * mqi;
-	outputQueue * mqo;
-};
-
 OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 	setObjectName("output");
 	QHBoxLayout *layout = new QHBoxLayout(this);
@@ -60,6 +22,69 @@ OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 			childScene->addText(error);
 		}
 	}
+	newInterp = interp;
+	cons = Consumer(iq, oq);
+	t1 = std::thread(cons, interp);
+	cons.setThreadRunTrue();
+}
+
+OutputWidget::~OutputWidget() {
+	std::string str;
+	iq->push(str);
+	if (t1.joinable()) {
+		t1.join();
+	}
+	iq->try_pop(str);
+}
+
+void OutputWidget::start() {
+	if (!cons.getThreadRun()) {
+		cons.setThreadRunTrue();
+		t1 = std::thread(cons, interp);
+	}
+	else {
+		childScene->clear();
+		QString error = "Error: Could not start the thread, already a thread running.";
+		childScene->addText(error);
+		childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
+		childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	}
+}
+
+void OutputWidget::stop() {
+	if (cons.getThreadRun()) {
+		cons.setThreadRunFalse();
+		std::string st;
+		iq->push(st);
+		t1.join();
+		if (!iq->empty()) {
+			iq->wait_and_pop(st);
+		}
+	}
+	else {
+		childScene->clear();
+		QString error = "Error: Could not stop the thread, already no thread running";
+		childScene->addText(error);
+		childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
+		childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	}
+}
+
+void OutputWidget::reset() {
+	// If not stopped
+	if (cons.getThreadRun()) {
+		// Stop the code
+		std::string str;
+		iq->push(str);
+		t1.join();
+		iq->try_pop(str);
+	}
+	cons.setThreadRunTrue();
+	// Start the code
+	t1 = std::thread(cons, interp);
+	interp = newInterp;
 }
 
 void OutputWidget::receiveString(QString str) {

@@ -8,6 +8,8 @@
 #include "semantic_error.hpp"
 #include "interpreter.hpp"
 #include "expression.hpp"
+#include "startup_config.hpp"
+
 
 Expression run(const std::string & program){
   
@@ -721,3 +723,25 @@ TEST_CASE("Test apply not a procedure", "[interpreter]") {
 	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
 }
 
+TEST_CASE("Test point", "[interpreter]") {
+	Interpreter interp;
+
+	std::ifstream ifs(STARTUP_FILE);
+	REQUIRE(interp.parseStream(ifs));
+	REQUIRE_NOTHROW(interp.evaluate());
+
+	std::string program = "(make-point 0 0)";
+	INFO(program);
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	Expression result = run(program);
+
+	REQUIRE(result.isPoint());
+	REQUIRE(!result.isLine());
+	REQUIRE(!result.isText());
+
+
+}
