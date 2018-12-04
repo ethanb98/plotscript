@@ -11,9 +11,13 @@ NotebookApp::NotebookApp(QWidget * parent) : QWidget(parent) {
 	// http://doc.qt.io/qt-5/layout.html
 	// Create the Buttons
 	QPushButton *button1 = new QPushButton("Start Kernel");
+	button1->setObjectName("start");
 	QPushButton *button2 = new QPushButton("Stop Kernel");
+	button1->setObjectName("stop");
 	QPushButton *button3 = new QPushButton("Reset Kernel");
+	button1->setObjectName("reset");
 	QPushButton *button4 = new QPushButton("Interrupt");
+	button1->setObjectName("interrupt");
 	QHBoxLayout *newLayout = new QHBoxLayout;
 	newLayout->addWidget(button1);
 	newLayout->addWidget(button2);

@@ -37,7 +37,7 @@ OutputWidget::~OutputWidget() {
 			t1.join();
 		}
 		if (!iq->empty()) {
-			iq->wait_and_pop(st);
+			iq->try_pop(st);
 		}
 	}
 }
@@ -66,7 +66,7 @@ void OutputWidget::stop() {
 			t1.join();
 		}
 		if (!iq->empty()) {
-			iq->wait_and_pop(st);
+			iq->try_pop(st);
 		}
 	}
 	/*else {
