@@ -30,35 +30,18 @@ public:
 	}
 
 	Consumer(inputQueue *messageQueueIn, outputQueue *messageQueueOut) {
-		iq = messageQueueIn;
-		oq = messageQueueOut;
-	}
-
-	bool getThreadRun() {
-		return threadRun;
-	}
-
-	void setThreadRunFalse() {
-		threadRun = false;
-	}
-
-	void setThreadRunTrue() {
-		threadRun = true;
-	}
-
-	void setRunningFalse() {
-		running = false;
+		mqi = messageQueueIn;
+		mqo = messageQueueOut;
 	}
 
 	void operator()(Interpreter interp) {
-		while (running) {
+		while (1) {
 			std::string temp;
 			Expression exp;
-			iq->wait_and_pop(temp);
+			mqi->wait_and_pop(temp);
 			std::string error;
 			std::istringstream expression(temp);
 			if (temp.empty()) {
-				setRunningFalse();
 				return;
 			}
 			if (!interp.parseStream(expression)) {
@@ -73,15 +56,26 @@ public:
 				}
 			}
 			output out = std::make_pair(exp, error);
-			oq->push(out);
+			mqo->push(out);
 		}
+	}
+
+	bool getThreadRun() {
+		return threadRun;
+	}
+
+	void setThreadRunFalse() {
+		threadRun = false;
+	}
+
+	void setThreadRunTrue() {
+		threadRun = true;
 	}
 
 private:
 	bool threadRun;
-	bool running = true;
-	inputQueue * iq;
-	outputQueue * oq;
+	inputQueue * mqi;
+	outputQueue * mqo;
 };
 
 class OutputWidget : public QWidget {

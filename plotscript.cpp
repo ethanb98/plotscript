@@ -16,7 +16,7 @@ typedef std::pair<Expression, std::string> output;
 typedef MsgSafeQueue<output> outputQueue;
 
 
-// This global is needed for communication between the signal handler
+/*// This global is needed for communication between the signal handler
 // and the rest of the code. This atomic integer counts the number of times
 // Cntl-C has been pressed by not reset by the REPL code.
 volatile sig_atomic_t global_status_flag = 0;
@@ -80,6 +80,7 @@ inline void install_handler() {
 }
 #endif
 // *****************************************************************************
+*/
 
 class Consumer {
 public:
