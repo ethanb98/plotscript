@@ -8,6 +8,7 @@
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
 #include "message_queue.hpp"
+#include "expression.hpp"
 #include <csignal>
 #include <cstdlib>
 
@@ -15,11 +16,9 @@ typedef MsgSafeQueue<std::string> inputQueue;
 typedef std::pair<Expression, std::string> output;
 typedef MsgSafeQueue<output> outputQueue;
 
-
-/*// This global is needed for communication between the signal handler
+// This global is needed for communication between the signal handler
 // and the rest of the code. This atomic integer counts the number of times
 // Cntl-C has been pressed by not reset by the REPL code.
-volatile sig_atomic_t global_status_flag = 0;
 
 // *****************************************************************************
 // install a signal handler for Cntl-C on Windows
@@ -80,7 +79,6 @@ inline void install_handler() {
 }
 #endif
 // *****************************************************************************
-*/
 
 class Consumer {
 public:
@@ -127,6 +125,11 @@ void prompt(){
 std::string readline(){
   std::string line;
   std::getline(std::cin, line);
+
+if (std::cin.fail() || std::cin.eof()) {
+      std::cin.clear(); // reset cin state
+      line.clear(); //clear input string
+    }
 
   return line;
 }
@@ -187,7 +190,8 @@ void repl(Interpreter interp){
 	Consumer cons(iq, oq);
 	std::thread t1(cons, interp);
 	while(!std::cin.eof()){
-    
+		global_status_flag = 0;
+
 		prompt();
 		std::string line = readline();
 
@@ -249,13 +253,22 @@ void repl(Interpreter interp){
 			continue;
 		}
 		iq->push(line);
-		oq->wait_and_pop(out);
 
-		if (out.second.empty()) {
-			std::cout << out.first << " ";
+		while (oq->empty()) {
+			if (global_status_flag > 0) {
+				std::cerr << "Error: interpreter kernel interrupted" << std::endl;
+				break;
+			}
 		}
-		else {
-			std::cout << out.second << " ";
+		oq->try_pop(out);
+
+		if (global_status_flag == 0) {
+			if (out.second.empty()) {
+				std::cout << out.first << " ";
+			}
+			else {
+				std::cout << out.second << " ";
+			}
 		}
 	}
 
@@ -266,7 +279,7 @@ void repl(Interpreter interp){
 
 int main(int argc, char *argv[])
 {
-	//install_handler();
+	install_handler();
 	Interpreter interp;
 	std::ifstream ifs(STARTUP_FILE);
 	if (!interp.parseStream(ifs)) {

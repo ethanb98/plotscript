@@ -7,9 +7,13 @@ Defines the Expression type and assiciated functions.
 #include <string>
 #include <vector>
 #include <map>
+#include <csignal>
+#include <cstdlib>
 
 #include "token.hpp"
 #include "atom.hpp"
+
+extern volatile sig_atomic_t global_status_flag;
 
 // forward declare Environment
 class Environment;
