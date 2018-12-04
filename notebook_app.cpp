@@ -13,11 +13,11 @@ NotebookApp::NotebookApp(QWidget * parent) : QWidget(parent) {
 	QPushButton *button1 = new QPushButton("Start Kernel");
 	button1->setObjectName("start");
 	QPushButton *button2 = new QPushButton("Stop Kernel");
-	button1->setObjectName("stop");
+	button2->setObjectName("stop");
 	QPushButton *button3 = new QPushButton("Reset Kernel");
-	button1->setObjectName("reset");
+	button3->setObjectName("reset");
 	QPushButton *button4 = new QPushButton("Interrupt");
-	button1->setObjectName("interrupt");
+	button4->setObjectName("interrupt");
 	QHBoxLayout *newLayout = new QHBoxLayout;
 	newLayout->addWidget(button1);
 	newLayout->addWidget(button2);
@@ -25,7 +25,7 @@ NotebookApp::NotebookApp(QWidget * parent) : QWidget(parent) {
 	newLayout->addWidget(button4);
 	//setObjectName("notebook");
 	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addLayout(newLayout); // Add the button layouts]
+	layout->addLayout(newLayout); // Add the button layouts
 	layout->addWidget(&input, 1);
 	layout->addWidget(&output, 1);
 	this->setLayout(layout);
