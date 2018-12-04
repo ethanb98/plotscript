@@ -19,7 +19,6 @@
 #include "semantic_error.hpp"
 #include "expression.hpp"
 
-
 typedef MsgSafeQueue<std::string> inputQueue;
 typedef std::pair<Expression, std::string> output;
 typedef MsgSafeQueue<output> outputQueue;
@@ -29,30 +28,10 @@ public:
 	Consumer() {
 		threadRun = true;
 	}
-	Consumer(inputQueue *messageQueueIn, outputQueue *messageQueueOut) {
-		mqi = messageQueueIn;
-		mqo = messageQueueOut;
-	}
 
-	void operator()(Interpreter interp) const {
-		std::string temp;
-		Expression exp;
-		mqi->wait_and_pop(temp);
-		std::string error;
-		std::istringstream expression(temp);
-		if (!interp.parseStream(expression)) {
-			error = "Invalid Expression. Could not parse.";
-		}
-		else {
-			try {
-				exp = interp.evaluate();
-			}
-			catch (const SemanticError & ex) {
-				error = ex.what();
-			}
-		}
-		output out = std::make_pair(exp, error);
-		mqo->push(out);
+	Consumer(inputQueue *messageQueueIn, outputQueue *messageQueueOut) {
+		iq = messageQueueIn;
+		oq = messageQueueOut;
 	}
 
 	bool getThreadRun() {
@@ -67,10 +46,42 @@ public:
 		threadRun = true;
 	}
 
+	void setRunningFalse() {
+		running = false;
+	}
+
+	void operator()(Interpreter interp) {
+		while (running) {
+			std::string temp;
+			Expression exp;
+			iq->wait_and_pop(temp);
+			std::string error;
+			std::istringstream expression(temp);
+			if (temp.empty()) {
+				setRunningFalse();
+				return;
+			}
+			if (!interp.parseStream(expression)) {
+				error = "Invalid Expression. Could not parse.";
+			}
+			else {
+				try {
+					exp = interp.evaluate();
+				}
+				catch (const SemanticError & ex) {
+					error = ex.what();
+				}
+			}
+			output out = std::make_pair(exp, error);
+			oq->push(out);
+		}
+	}
+
 private:
 	bool threadRun;
-	inputQueue * mqi;
-	outputQueue * mqo;
+	bool running = true;
+	inputQueue * iq;
+	outputQueue * oq;
 };
 
 class OutputWidget : public QWidget {
