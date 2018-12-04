@@ -222,10 +222,7 @@ void repl(Interpreter interp){
 				std::string str;
 				iq->push(str);
 				t1.join();
-				if (!iq->empty()) {
-					std::cout << "Im within" << std::endl;
-					iq->try_pop(str);
-				}
+				iq->try_pop(str);
 			}
 			threadRun = true;
 			// Start the code

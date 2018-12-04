@@ -29,12 +29,17 @@ OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 }
 
 OutputWidget::~OutputWidget() {
-	std::string str;
-	iq->push(str);
-	if (t1.joinable()) {
-		t1.join();
+	if (cons.getThreadRun()) {
+		cons.setThreadRunFalse();
+		std::string st;
+		iq->push(st);
+		if (t1.joinable()) {
+			t1.join();
+		}
+		if (!iq->empty()) {
+			iq->wait_and_pop(st);
+		}
 	}
-	iq->try_pop(str);
 }
 
 void OutputWidget::start() {
