@@ -109,7 +109,7 @@ int intersectsLine(QGraphicsScene * scene, QPointF center, qreal radius) {
 void NotebookTest::testSingPoint() {
 	std::string program = "(set-property \"size\" 20 (make-point 0 0))";
 	inputWidget->setPlainText(QString::fromStdString(program));
-	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier);
+	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 1000);
 
 	auto view = outputWidget->findChild<QGraphicsView *>();
 	QVERIFY2(view, "Could not find QGraphicsView as child of outputWidget (testSingPoint)");
@@ -134,7 +134,7 @@ void NotebookTest::testSingPoint() {
 void NotebookTest::testHorPoint() {
 	std::string program = "(list (set-property \"size\" 1 (make-point 0 0)) (set-property \"size\" 2 (make-point 4 0)) (set-property \"size\" 4 (make-point 8 0)) (set-property \"size\" 8 (make-point 16 0)) (set-property \"size\" 16 (make-point 32 0)) (set-property \"size\" 32 (make-point 64 0)))";
 	inputWidget->setPlainText(QString::fromStdString(program));
-	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier);
+	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 1000);
 	
 	auto view = outputWidget->findChild<QGraphicsView *>();
 	QVERIFY2(view, "Could not find QGraphicsView as child of outputWidget (testHorPoint)");
@@ -181,7 +181,7 @@ void NotebookTest::testDiscretePlotLayout() {
 )";
 
 	inputWidget->setPlainText(QString::fromStdString(program));
-	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier);
+	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 1000);
 
 	auto view = outputWidget->findChild<QGraphicsView *>();
 	QVERIFY2(view, "Could not find QGraphicsView as child of OutputWidget");

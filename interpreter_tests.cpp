@@ -896,8 +896,7 @@ TEST_CASE("Test rotate", "[interpreter]") {
 	REQUIRE(result.textRotReq() == 0);
 }
 
-
-/*TEST_CASE("Test Discrete", "[interpreter]") {
+TEST_CASE("Test Discrete", "[interpreter]") {
 	Interpreter interp;
 
 	std::string program = "(begin (define f (lambda (x) (list x (+ (* 2 x) 1)))) (discrete-plot (map f (range -2 2 0.5)) (list (list \"title\" \"The Data\") (list \"abscissa-label\" \"X Label\") (list \"ordinate-label\" \"Y Label\") (list \"text-scale\" 1))))";
@@ -909,9 +908,6 @@ TEST_CASE("Test rotate", "[interpreter]") {
 
 	Expression result = run(program);
 
-	REQUIRE(!result.isPoint());
-	REQUIRE(!result.isLine());
-	REQUIRE(result.isText());
-
-	REQUIRE(result.textRotReq() == 0);
-}*/
+	REQUIRE(result.getTail().size() == 32);
+	REQUIRE(!result.head().isDiscrete());
+}

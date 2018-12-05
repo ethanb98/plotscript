@@ -38,7 +38,7 @@ public:
 		mqo = messageQueueOut;
 	}
 
-	void operator()(Interpreter interp) const{
+	void operator()(Interpreter interp) {
 		while (1) {
 			std::string temp;
 			Expression exp;
@@ -95,7 +95,7 @@ private slots:
 	void stop();
 	void reset();
 	void interrupt();
-	//void timerStart();
+	void timerStart();
 
 private:
 	QGraphicsView * childView = new QGraphicsView(this);
@@ -107,7 +107,7 @@ private:
 	Consumer cons;
 	std::thread t1;
 	Interpreter newInterp;
-	//QTimer *timer;
-	//output outpair;
+	QTimer *timer;
+	output outpair;
 };
 #endif

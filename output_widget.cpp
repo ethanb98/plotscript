@@ -22,11 +22,11 @@ OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 	}
 	newInterp = interp;
 	cons = Consumer(iq, oq);
-	cons.setThreadRunTrue();
+	//cons.setThreadRunTrue();
 	t1 = std::thread(cons, interp);
-	//timer = new QTimer(this);
-	//QObject::connect(timer, SIGNAL(timeout()), this, SLOT(timerStart()));
-	//timer->start(0);
+	timer = new QTimer(this);
+	QObject::connect(timer, SIGNAL(timeout()), this, SLOT(timerStart()));
+	timer->start(0);
 }
 
 OutputWidget::~OutputWidget() {
@@ -64,7 +64,7 @@ void OutputWidget::stop() {
 }
 
 void OutputWidget::reset() {
-	Consumer cons2(iq, oq);
+	//Consumer cons2(iq, oq);
 	// If not stopped
 	if (cons.getThreadRun()) {
 		// Stop the code
@@ -79,9 +79,9 @@ void OutputWidget::reset() {
 	}
 	childScene->clear();
 	cons.setThreadRunTrue();
-	cons2.setThreadRunTrue();
+	//cons2.setThreadRunTrue();
 	// Start the code
-	t1 = std::thread(cons2, interp);
+	t1 = std::thread(cons/*2*/, interp);
 	interp = newInterp;
 }
 
@@ -90,7 +90,7 @@ void OutputWidget::interrupt() {
 	global_status_flag = 1;
 }
 
-/*void OutputWidget::timerStart() {
+void OutputWidget::timerStart() {
 	if (oq->try_pop(outpair)) {
 		if (cons.getThreadRun()) {
 			if (clearScreen) {
@@ -168,82 +168,11 @@ void OutputWidget::interrupt() {
 			childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		}
 	}
-}*/
+}
 
 void OutputWidget::receiveString(QString str) {
-	//global_status_flag = 0;
-	//iq->push(str.toStdString());
-	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-	// If not a list, clear the screen
-	// else, recurse through and leave screen alone
-	if (cons.getThreadRun()) {
-		if (clearScreen) {
-			childScene->clear();
-		}
-		std::istringstream iss(str.toStdString());
-		if (!interp.parseStream(iss)) {
-			childScene->clear();
-			childScene->addText(QString("Error: Invalid, could not parse"));
-		}
-		else {
-			try {
-				Expression exp = interp.evaluate();
-				// If a list, do not clear screen and recursively collect information
-				if (exp.head().isLambda()) {
-					childScene->clear();
-				}
-				else if (exp.head().isList() || exp.head().isDiscrete()) {
-					if (exp.getTail().size() >= 10)
-					{
-						exp.head().setDiscrete();
-					}
-					listCap(exp);
-				}
-				else {
-					if (exp.isText()) {
-						childScene->clear();
-						auto font = QFont("Monospace");
-						font.setStyleHint(QFont::TypeWriter);
-						font.setPointSize(1);
-
-						Expression newExp = exp.textReq();
-						double x = newExp.pointTail0();
-						double y = newExp.pointTail1();
-						Expression scaler = exp.req();
-						double scale = scaler.head().asNumber();
-						double rot = exp.textRotReq();
-						rot = rot * 180 / M_PI;
-
-						QString text = QString::fromStdString(exp.transferString().substr(2, (exp.transferString().length() - 4)));
-						QGraphicsTextItem *childText = childScene->addText(text);
-
-						childText->setFont(font);
-						QRectF childRect = childText->sceneBoundingRect();
-						QPointF childPos = QPointF(x - childRect.width() / 2, y - childRect.height() / 2);
-						childText->setPos(childPos);
-						QPointF childCenter = childText->sceneBoundingRect().center();
-						childText->setTransformOriginPoint(childCenter);
-						childText->setScale(scale);
-						childText->setRotation(rot);
-					}
-					else {
-						childScene->clear();
-						childScene->addText(QString::fromStdString(exp.transferString()));
-					}
-				}
-			}
-			catch (const SemanticError & ex) {
-				childScene->clear();
-				QString error = QString::fromStdString(ex.what());
-				childScene->addText(error);
-			}
-		}
-		childView->fitInView(childScene->itemsBoundingRect(), Qt::KeepAspectRatio);
-		childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	}
-	else {
+	global_status_flag = 0;
+	if (!cons.getThreadRun()) {
 		childScene->clear();
 		QString error = "Error: interpreter kernel not running";
 		childScene->addText(error);
@@ -251,6 +180,8 @@ void OutputWidget::receiveString(QString str) {
 		childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	}
+	iq->push(str.toStdString());
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void OutputWidget::listCap(Expression exp) {
