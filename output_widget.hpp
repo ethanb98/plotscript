@@ -43,11 +43,11 @@ public:
 			std::string temp;
 			Expression exp;
 			mqi->wait_and_pop(temp);
+			std::istringstream expression(temp);
 			if (temp.empty()) {
 				break;
 			}
 			std::string error;
-			std::istringstream expression(temp);
 			if (!interp.parseStream(expression)) {
 				error = "Invalid Expression. Could not parse.";
 			}

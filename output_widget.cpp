@@ -22,7 +22,7 @@ OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 	}
 	newInterp = interp;
 	cons = Consumer(iq, oq);
-	//cons.setThreadRunTrue();
+	cons.setThreadRunTrue();
 	t1 = std::thread(cons, interp);
 	timer = new QTimer(this);
 	QObject::connect(timer, SIGNAL(timeout()), this, SLOT(timerStart()));
@@ -30,13 +30,15 @@ OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 }
 
 OutputWidget::~OutputWidget() {
-	std::string st;
-	iq->push(st);
-	if (t1.joinable()) {
-		t1.join();
-	}
-	if (!iq->empty()) {
-		iq->try_pop(st);
+	if (cons.getThreadRun()) {
+		std::string st;
+		iq->push(st);
+		if (t1.joinable()) {
+			t1.join();
+		}
+		if (!iq->empty()) {
+			iq->wait_and_pop(st);
+		}
 	}
 }
 
@@ -58,31 +60,21 @@ void OutputWidget::stop() {
 			t1.join();
 		}
 		if (!iq->empty()) {
-			iq->try_pop(st);
+			iq->wait_and_pop(st);
 		}
 	}
 }
 
 void OutputWidget::reset() {
-	//Consumer cons2(iq, oq);
 	// If not stopped
 	if (cons.getThreadRun()) {
-		// Stop the code
-		std::string str;
-		iq->push(str);
-		if (t1.joinable()) {
-			t1.join();
-		}
-		if (!iq->empty()) {
-			iq->wait_and_pop(str);
-		}
+		stop();
 	}
 	childScene->clear();
 	cons.setThreadRunTrue();
-	//cons2.setThreadRunTrue();
 	// Start the code
-	t1 = std::thread(cons/*2*/, interp);
 	interp = newInterp;
+	t1 = std::thread(cons, interp);
 }
 
 void OutputWidget::interrupt() {
@@ -180,8 +172,10 @@ void OutputWidget::receiveString(QString str) {
 		childView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	}
-	iq->push(str.toStdString());
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	else {
+		iq->push(str.toStdString());
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
 }
 
 void OutputWidget::listCap(Expression exp) {
