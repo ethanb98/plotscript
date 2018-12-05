@@ -49,7 +49,7 @@ public:
 			}
 			std::string error;
 			if (!interp.parseStream(expression)) {
-				error = "Invalid Expression. Could not parse.";
+				error = "Error: Invalid Expression. Could not parse.";
 			}
 			else {
 				try {
