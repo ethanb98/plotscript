@@ -92,7 +92,7 @@ private slots:
 	void start();
 	void stop();
 	void reset();
-	//void interrupt();
+	void interrupt();
 
 private:
 	QGraphicsView * childView = new QGraphicsView(this);

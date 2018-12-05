@@ -671,7 +671,8 @@ Expression Expression::handle_discrete(Environment & env) {
 // this limits the practical depth of our AST
 Expression Expression::eval(Environment & env){
 	if (global_status_flag > 0) {
-		return Expression(Atom("Error: interpreter kernel interrupted"));
+		std::cout << "Done" << std::endl;
+		throw SemanticError("Error: interpreter kernel interrupted");
 	}
 	if(m_tail.empty()){
 		if (m_head.isSymbol() && (m_head.asSymbol() == "list")) {

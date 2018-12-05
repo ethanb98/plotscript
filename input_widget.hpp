@@ -6,6 +6,8 @@
 #include <QApplication>
 #include <QSet>
 
+#include "expression.hpp"
+
 class InputWidget : public QPlainTextEdit {
 	Q_OBJECT
 public:

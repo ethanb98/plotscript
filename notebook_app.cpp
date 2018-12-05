@@ -34,6 +34,6 @@ NotebookApp::NotebookApp(QWidget * parent) : QWidget(parent) {
 	QObject::connect(button1, SIGNAL(clicked()), &output, SLOT(start()));
 	QObject::connect(button2, SIGNAL(clicked()), &output, SLOT(stop()));
 	QObject::connect(button3, SIGNAL(clicked()), &output, SLOT(reset()));
-	//QObject::connect(button4, SIGNAL(clicked()), &output, SLOT(interrupt()));
+	QObject::connect(button4, SIGNAL(clicked()), &output, SLOT(interrupt()));
 }
 

@@ -12,10 +12,14 @@
 
 
 Expression run(const std::string & program){
-  
+	Interpreter interp;
+
+	std::ifstream ifs(STARTUP_FILE);
+	REQUIRE(interp.parseStream(ifs));
+	REQUIRE_NOTHROW(interp.evaluate());
+
   std::istringstream iss(program);
     
-  Interpreter interp;
     
   bool ok = interp.parseStream(iss);
   if(!ok){
@@ -723,12 +727,8 @@ TEST_CASE("Test apply not a procedure", "[interpreter]") {
 	REQUIRE_THROWS_AS(interp.evaluate(), SemanticError);
 }
 
-/*TEST_CASE("Test point", "[interpreter]") {
+TEST_CASE("Test point", "[interpreter]") {
 	Interpreter interp;
-
-	std::ifstream ifs(STARTUP_FILE);
-	REQUIRE(interp.parseStream(ifs));
-	REQUIRE_NOTHROW(interp.evaluate());
 
 	std::string program = "(make-point 0 0)";
 	INFO(program);
@@ -739,9 +739,159 @@ TEST_CASE("Test apply not a procedure", "[interpreter]") {
 
 	Expression result = run(program);
 
+	// Test that the program is a point
 	REQUIRE(result.isPoint());
 	REQUIRE(!result.isLine());
 	REQUIRE(!result.isText());
 
+	// Test that the tails points are true
+	REQUIRE(result.pointTail0() == 0);
+	REQUIRE(result.pointTail1() == 0);
+}
 
-}*/
+TEST_CASE("Test size", "[interpreter]") {
+	Interpreter interp;
+
+	std::string program = "(set-property \"size\" (2) (make-point 0 0))";
+	INFO(program);
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	Expression result = run(program);
+
+	// Test that the program is a point
+	REQUIRE(result.isPoint());
+	REQUIRE(!result.isLine());
+	REQUIRE(!result.isText());
+
+	// Test the parameters of the point
+	REQUIRE(result.pointTail0() == 0);
+	REQUIRE(result.pointTail1() == 0);
+	Expression test = Expression(2);
+	REQUIRE(result.req() == test);
+}
+
+TEST_CASE("Test line", "[interpreter]") {
+	Interpreter interp;
+
+	std::string program = "(make-line (make-point 0 0) (make-point 5 5))";
+	INFO(program);
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	Expression result = run(program);
+
+	REQUIRE(!result.isPoint());
+	REQUIRE(result.isLine());
+	REQUIRE(!result.isText());
+
+	REQUIRE(result.lineTail0x() == 0);
+	REQUIRE(result.lineTail0y() == 0);
+	REQUIRE(result.lineTail1x() == 5);
+	REQUIRE(result.lineTail1y() == 5);
+}
+
+TEST_CASE("Test thickness", "[interpreter]") {
+	Interpreter interp;
+
+	std::string program = "(set-property \"thickness\" 5 (make-line (make-point 0 0) (make-point 5 5)))";
+	INFO(program);
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	Expression result = run(program);
+
+	REQUIRE(!result.isPoint());
+	REQUIRE(result.isLine());
+	REQUIRE(!result.isText());
+
+	REQUIRE(result.lineTail0x() == 0);
+	REQUIRE(result.lineTail0y() == 0);
+	REQUIRE(result.lineTail1x() == 5);
+	REQUIRE(result.lineTail1y() == 5);
+
+	Expression test = Expression(5);
+	REQUIRE(result.req() == test);
+}
+
+TEST_CASE("Test text", "[interpreter]") {
+	Interpreter interp;
+
+	std::string program = "(make-text \"Hello World!\")";
+	INFO(program);
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	Expression result = run(program);
+
+	REQUIRE(!result.isPoint());
+	REQUIRE(!result.isLine());
+	REQUIRE(result.isText());
+}
+
+TEST_CASE("Test position", "[interpreter]") {
+	Interpreter interp;
+
+	std::string program = "(set-property \"position\" (make-point 0 0) (make-text \"Hello World!\"))";
+	INFO(program);
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	Expression result = run(program);
+
+	REQUIRE(!result.isPoint());
+	REQUIRE(!result.isLine());
+	REQUIRE(result.isText());
+
+	REQUIRE(result.textReq().pointTail0() == 0);
+	REQUIRE(result.textReq().pointTail1() == 0);
+}
+
+TEST_CASE("Test text-scale", "[interpreter]") {
+	Interpreter interp;
+
+	std::string program = "(set-property \"text-scale\" 1 (make-text \"Hello World!\"))";
+	INFO(program);
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	Expression result = run(program);
+
+	REQUIRE(!result.isPoint());
+	REQUIRE(!result.isLine());
+	REQUIRE(result.isText());
+
+	Expression test = Expression(1);
+	REQUIRE(result.req() == test);
+}
+
+TEST_CASE("Test rotate", "[interpreter]") {
+	Interpreter interp;
+
+	std::string program = "(set-property \"rotate\" 2 (make-text \"Hello World!\"))";
+	INFO(program);
+	std::istringstream iss(program);
+
+	bool ok = interp.parseStream(iss);
+	REQUIRE(ok == true);
+
+	Expression result = run(program);
+
+	REQUIRE(!result.isPoint());
+	REQUIRE(!result.isLine());
+	REQUIRE(result.isText());
+
+	REQUIRE(result.textRotReq() == 0);
+}

@@ -12,6 +12,7 @@ bool InputWidget::eventFilter(QObject *obj, QEvent *event)
 	if (event->type() == QEvent::KeyPress) {
 		pressedKeys += ((QKeyEvent*)event)->key();
 		if (pressedKeys.contains(Qt::Key_Shift) && pressedKeys.contains(Qt::Key_Return)) {
+			global_status_flag = 0;
 			// special instruction handling here
 			// Makes this into a plain string and sent it to notebook to be changed
 			emit sendString(this->toPlainText());
