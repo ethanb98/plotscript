@@ -24,9 +24,9 @@ OutputWidget::OutputWidget(QWidget * parent) : QWidget(parent) {
 	cons = Consumer(iq, oq);
 	cons.setThreadRunTrue();
 	t1 = std::thread(cons, interp);
-	timer = new QTimer(this);
-	QObject::connect(timer, SIGNAL(timeout()), this, SLOT(timerStart()));
-	timer->start(0);
+	//timer = new QTimer(this);
+	//QObject::connect(timer, SIGNAL(timeout()), this, SLOT(timerStart()));
+	//timer->start(0);
 }
 
 OutputWidget::~OutputWidget() {
@@ -73,7 +73,9 @@ void OutputWidget::reset() {
 		if (t1.joinable()) {
 			t1.join();
 		}
-		iq->try_pop(str);
+		if (!iq->empty()) {
+			iq->wait_and_pop(str);
+		}
 	}
 	childScene->clear();
 	cons.setThreadRunTrue();
@@ -84,10 +86,11 @@ void OutputWidget::reset() {
 }
 
 void OutputWidget::interrupt() {
-	++global_status_flag;
+	childScene->clear();
+	global_status_flag = 1;
 }
 
-void OutputWidget::timerStart() {
+/*void OutputWidget::timerStart() {
 	if (oq->try_pop(outpair)) {
 		if (cons.getThreadRun()) {
 			if (clearScreen) {
@@ -165,13 +168,12 @@ void OutputWidget::timerStart() {
 			childView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		}
 	}
-}
+}*/
 
 void OutputWidget::receiveString(QString str) {
-	global_status_flag = 0;
-	iq->push(str.toStdString());
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	//timerStart();
+	//global_status_flag = 0;
+	//iq->push(str.toStdString());
+	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	// If not a list, clear the screen
 	// else, recurse through and leave screen alone

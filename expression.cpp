@@ -659,9 +659,6 @@ Expression Expression::handle_discrete(Environment & env) {
 	}
 
 	// Returns the vector of expressions as an expression
-	/*Expression FinalResults = Expression(Results);
-	FinalResults.head().setDiscrete();
-	return FinalResults;*/
 	return Expression(Results);
 }
 
@@ -826,12 +823,6 @@ Expression Expression::req() const noexcept {
 	}
 	if ((propmap.find("\"object-name\"") != propmap.end()) && propmap.at("\"object-name\"") == text) {
 		return propmap.at("\"text-scale\"");
-		/*if (propmap.at("\"text-scale\"").head().asNumber() > 0) {
-			return propmap.at("\"text-scale\"").head().asNumber();
-		}*/
-		/*else {
-			throw SemanticError("Error during notebook: scale is not positive non-zero number");
-		}*/
 	}
 	return exp;
 }
