@@ -7,6 +7,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
 #include <QtMath>
+#include <QTimer>
 
 #include <string>
 #include <sstream>
@@ -14,6 +15,7 @@
 #include <fstream>
 #include <thread>
 #include <utility>
+#include <chrono>
 
 #include "startup_config.hpp"
 #include "interpreter.hpp"
@@ -93,6 +95,7 @@ private slots:
 	void stop();
 	void reset();
 	void interrupt();
+	void timerStart();
 
 private:
 	QGraphicsView * childView = new QGraphicsView(this);
@@ -104,5 +107,7 @@ private:
 	Consumer cons;
 	std::thread t1;
 	Interpreter newInterp;
+	QTimer *timer;
+	output outpair;
 };
 #endif
