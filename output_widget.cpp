@@ -89,7 +89,6 @@ void OutputWidget::timerStart() {
 				childScene->clear();
 			}
 			if (outpair.second.length() == 0) {
-				std::cout << "AUTISM INITIALIZED" << std::endl;
 				try {
 					Expression exp = outpair.first;
 					// If a list, do not clear screen and recursively collect information

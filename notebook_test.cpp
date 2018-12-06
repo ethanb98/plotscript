@@ -10,6 +10,17 @@ private slots:
   void testDiscretePlotLayout();
   void testSingPoint();
   void testHorPoint();
+  void testGetNotAKey();
+  void testSetPropertyInval();
+  void testUndefined();
+  void testMakeText();
+  void testMakeMath();
+  void testMakeTitle();
+  void testLambdaNoShow();
+  void testNoPoint();
+  void testParseError();
+  void testListArgument();
+
 
   // TODO: implement additional tests here
 private:
@@ -105,11 +116,11 @@ int intersectsLine(QGraphicsScene * scene, QPointF center, qreal radius) {
 	return numlines;
 }
 
-// MIlestone 2 Test for single point
+// Milestone 2 Test for single point
 void NotebookTest::testSingPoint() {
 	std::string program = "(set-property \"size\" 20 (make-point 0 0))";
 	inputWidget->setPlainText(QString::fromStdString(program));
-	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 1000);
+	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 10);
 
 	auto view = outputWidget->findChild<QGraphicsView *>();
 	QVERIFY2(view, "Could not find QGraphicsView as child of outputWidget (testSingPoint)");
@@ -134,7 +145,7 @@ void NotebookTest::testSingPoint() {
 void NotebookTest::testHorPoint() {
 	std::string program = "(list (set-property \"size\" 1 (make-point 0 0)) (set-property \"size\" 2 (make-point 4 0)) (set-property \"size\" 4 (make-point 8 0)) (set-property \"size\" 8 (make-point 16 0)) (set-property \"size\" 16 (make-point 32 0)) (set-property \"size\" 32 (make-point 64 0)))";
 	inputWidget->setPlainText(QString::fromStdString(program));
-	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 1000);
+	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 10);
 	
 	auto view = outputWidget->findChild<QGraphicsView *>();
 	QVERIFY2(view, "Could not find QGraphicsView as child of outputWidget (testHorPoint)");
@@ -181,7 +192,7 @@ void NotebookTest::testDiscretePlotLayout() {
 )";
 
 	inputWidget->setPlainText(QString::fromStdString(program));
-	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 1000);
+	QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 10);
 
 	auto view = outputWidget->findChild<QGraphicsView *>();
 	QVERIFY2(view, "Could not find QGraphicsView as child of OutputWidget");
@@ -252,6 +263,96 @@ void NotebookTest::testDiscretePlotLayout() {
 
 	// check the point at (1,1)
 	QCOMPARE(findPoints(scene, QPointF(10, -10), 0.6), 1);
+}
+
+void NotebookTest::testGetNotAKey() {
+	QString program = "(get-property \"notAKey\" (0))";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+	
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "NONE");
+}
+
+void NotebookTest::testSetPropertyInval() {
+	QString program = "(set-property \"notAKey\" (0))";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "Error during evaluation: invalid number of set-property arguments to define");
+}
+
+void NotebookTest::testUndefined() {
+	QString program = "(x)";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "Error during evaluation: unknown symbol");
+}
+
+void NotebookTest::testMakeText() {
+	QString program = "(make-text \"Hello World\")";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "Hello World");
+}
+
+void NotebookTest::testMakeMath() {
+	QString program = "(cos pi)";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "(-1)");
+}
+
+void NotebookTest::testMakeTitle() {
+	QString program = "(begin (define title \"The Title\") (title))";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "(\"The Title\")");
+}
+
+void NotebookTest::testLambdaNoShow() {
+	QString program = "(define inc (lambda (x) (+ x 1)))";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "");
+}
+
+void NotebookTest::testNoPoint() {
+	QString program = "(make-point 0 0)";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "");
+}
+
+void NotebookTest::testParseError() {
+	QString program = "(begin))";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "Error: Invalid Expression. Could not parse.");
+}
+
+void NotebookTest::testListArgument() {
+	QString program = "(begin (define a 1) (first a))";
+	inputWidget->setPlainText(program);
+	QTest::keyPress(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 0);
+
+	auto view = outputWidget->findChild<QGraphicsView *>();
+	QVERIFY2(view, "Error: argument to first is not a list.");
 }
 
 QTEST_MAIN(NotebookTest)
