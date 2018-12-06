@@ -21,7 +21,6 @@ private slots:
   void testParseError();
   void testListArgument();
 
-
   // TODO: implement additional tests here
 private:
 	NotebookApp widget;
